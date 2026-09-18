@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/Lab%20School%20Navigator.dc.html" }
+  ]
+}

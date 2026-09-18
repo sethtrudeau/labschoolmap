@@ -37,7 +37,7 @@ a:hover{color:#0c0f14}
           <button onClick="{{ goCatalog }}" style="{{ navCards }}">Cards</button>
           <button onClick="{{ goDecks }}" style="{{ navDecks }}">Decks</button>
         </nav>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <div style="margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px">
           <sc-if value="{{ naming }}" hint-placeholder-val="{{ false }}">
             <input value="{{ nameDraft }}" onChange="{{ onNameDraft }}" onKeyDown="{{ onNameKey }}" onBlur="{{ commitName }}" autoFocus="{{ true }}" placeholder="Name this deck" style="background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:8px 10px;font:400 13px/1.2 var(--font);width:260px;color:#0c0f14;outline:none">
           </sc-if>
@@ -47,6 +47,19 @@ a:hover{color:#0c0f14}
               <span style="font:500 13px/1.2 var(--font)">{{ activeName }}</span>
               <span style="font:400 12px/1.2 var(--font);color:#535350">{{ activeCount }}</span>
             </button>
+          </sc-if>
+          <sc-if value="{{ showChangePassword }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ changingPassword }}" hint-placeholder-val="{{ false }}">
+              <input type="password" value="{{ newPassword }}" onChange="{{ onNewPassword }}" onKeyDown="{{ onPasswordKey }}" autoFocus="{{ true }}" placeholder="New password" style="background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:8px 10px;font:400 13px/1.2 var(--font);width:180px;color:#0c0f14;outline:none">
+              <button onClick="{{ submitPasswordChange }}" disabled="{{ pwBusy }}" style="background:#0c0f14;color:#fff;border:1px solid #0c0f14;border-radius:4px;padding:8px 12px;font:400 13px/1.2 var(--font);cursor:pointer">Save</button>
+              <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}">
+                <span style="font:400 12px/1.2 var(--font);color:var(--error)">{{ pwError }}</span>
+              </sc-if>
+              <sc-if value="{{ pwSaved }}" hint-placeholder-val="{{ false }}">
+                <span style="font:400 12px/1.2 var(--font);color:#535350">Saved</span>
+              </sc-if>
+            </sc-if>
+            <button onClick="{{ toggleChangePassword }}" style="background:none;border:0;padding:7px 4px;cursor:pointer;font:400 13px/1.2 var(--font);color:#535350">{{ pwButtonLabel }}</button>
           </sc-if>
           <button onClick="{{ authNavAction }}" style="background:none;border:0;padding:7px 4px;cursor:pointer;font:400 13px/1.2 var(--font);color:#535350">{{ authNavLabel }}</button>
         </div>
@@ -62,8 +75,7 @@ a:hover{color:#0c0f14}
         <p style="font:400 15px/1.5 var(--font);color:#535350;margin:0 0 24px">Log in to save decks and see the ones you've already saved.</p>
         <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" onKeyDown="{{ onAuthKey }}" placeholder="Email" style="display:block;width:100%;background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 12px;font:400 14px/1.2 var(--font);color:#0c0f14;outline:none;margin-bottom:10px">
         <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" onKeyDown="{{ onAuthKey }}" placeholder="Password" style="display:block;width:100%;background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 12px;font:400 14px/1.2 var(--font);color:#0c0f14;outline:none;margin-bottom:14px">
-        <button onClick="{{ submitAuth }}" disabled="{{ authBusy }}" style="background:#0c0f14;color:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 16px;font:400 14px/1.2 var(--font);cursor:pointer">{{ authSubmitLabel }}</button>
-        <button onClick="{{ toggleAuthView }}" style="background:none;border:0;padding:10px 4px;font:400 13px/1.2 var(--font);color:#535350;cursor:pointer">{{ authToggleLabel }}</button>
+        <button onClick="{{ submitAuth }}" disabled="{{ authBusy }}" style="background:#0c0f14;color:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 16px;font:400 14px/1.2 var(--font);cursor:pointer">Log in</button>
         <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
           <p style="font:400 13px/1.4 var(--font);color:var(--error);margin:8px 0 0">{{ authError }}</p>
         </sc-if>
@@ -735,8 +747,8 @@ class Component extends DCLogic {
     }
   ];
 
-  static SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
-  static SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
+  static SUPABASE_URL = 'https://eegabbdapihtggsxjzmu.supabase.co';
+  static SUPABASE_ANON_KEY = 'sb_publishable_ihJrVaJ48QN4Ly5pf5ZZeA_8cbKSeFj';
   static sb() {
     if (!Component._sb) {
       Component._sb = window.supabase.createClient(Component.SUPABASE_URL, Component.SUPABASE_ANON_KEY);
@@ -752,8 +764,9 @@ class Component extends DCLogic {
       filter: null, query: '', mode: 'grid', hover: null, copied: null,
       naming: false, nameDraft: '', confirmDel: null, exported: false, dragFrom: null,
       wide: true,
-      session: null, authView: 'login', authReturnView: null,
-      authEmail: '', authPassword: '', authError: '', authBusy: false
+      session: null, authReturnView: null,
+      authEmail: '', authPassword: '', authError: '', authBusy: false,
+      changingPassword: false, newPassword: '', pwBusy: false, pwError: '', pwSaved: false
     };
     this.onResize = () => {
       const wide = window.innerWidth >= 720;
@@ -811,16 +824,23 @@ class Component extends DCLogic {
   }
 
   submitAuth() {
-    const { authView, authEmail, authPassword } = this.state;
+    const { authEmail, authPassword } = this.state;
     if (!authEmail || !authPassword) { this.setState({ authError: 'Enter an email and password.' }); return; }
     this.setState({ authBusy: true, authError: '' });
-    const call = authView === 'signup'
-      ? Component.sb().auth.signUp({ email: authEmail, password: authPassword })
-      : Component.sb().auth.signInWithPassword({ email: authEmail, password: authPassword });
-    call.then(({ error }) => {
+    Component.sb().auth.signInWithPassword({ email: authEmail, password: authPassword }).then(({ error }) => {
       this.setState({ authBusy: false });
       if (error) this.setState({ authError: error.message });
       // on success, onAuthStateChange fires applySession() automatically
+    });
+  }
+
+  submitPasswordChange() {
+    const { newPassword } = this.state;
+    if (!newPassword || newPassword.length < 6) { this.setState({ pwError: 'Password must be at least 6 characters.' }); return; }
+    this.setState({ pwBusy: true, pwError: '' });
+    Component.sb().auth.updateUser({ password: newPassword }).then(({ error }) => {
+      if (error) { this.setState({ pwBusy: false, pwError: error.message }); return; }
+      this.setState({ pwBusy: false, pwSaved: true, newPassword: '' });
     });
   }
 
@@ -1042,13 +1062,19 @@ class Component extends DCLogic {
       onAuthPassword: ev => this.setState({ authPassword: ev.target.value, authError: '' }),
       onAuthKey: ev => { if (ev.key === 'Enter') this.submitAuth(); },
       submitAuth: () => this.submitAuth(),
-      toggleAuthView: () => this.setState(st => ({ authView: st.authView === 'login' ? 'signup' : 'login', authError: '' })),
-      authSubmitLabel: s.authView === 'signup' ? 'Create account' : 'Log in',
-      authToggleLabel: s.authView === 'signup' ? 'Already have an account? Log in' : 'New here? Create an account',
       authNavLabel: authed ? 'Log out' : 'Log in',
       authNavAction: authed ? (() => Component.sb().auth.signOut()) : (() => this.goAuth()),
       goAuth: () => this.goAuth(),
       floorSaveNote: authed ? 'Decks are saved to your account.' : 'Log in to save decks and access them from anywhere.',
+
+      showChangePassword: authed,
+      changingPassword: s.changingPassword,
+      pwButtonLabel: s.changingPassword ? 'Cancel' : 'Change password',
+      toggleChangePassword: () => this.setState(st => ({ changingPassword: !st.changingPassword, newPassword: '', pwError: '', pwSaved: false })),
+      newPassword: s.newPassword, pwBusy: s.pwBusy, pwError: s.pwError, pwSaved: s.pwSaved,
+      onNewPassword: ev => this.setState({ newPassword: ev.target.value, pwError: '', pwSaved: false }),
+      onPasswordKey: ev => { if (ev.key === 'Enter') this.submitPasswordChange(); },
+      submitPasswordChange: () => this.submitPasswordChange(),
 
       goFloor: () => this.setState({ view: 'floor' }),
       goCatalog: () => this.setState({ view: 'catalog' }),
