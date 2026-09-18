@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/v3-playlab-design-system-9e87e75e-f4fd-428c-b32a-cb4e1b91879a/styles.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2/src/regular/style.css">
+<script src="_ds/v3-playlab-design-system-9e87e75e-f4fd-428c-b32a-cb4e1b91879a/_ds_bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+html,body{margin:0;padding:0}
+*{box-sizing:border-box}
+body{background:#fbf9f6;color:#0c0f14;font-family:var(--font);-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit}
+a{color:var(--link);text-decoration:none}
+a:hover{color:#0c0f14}
+@keyframes dealIn{from{opacity:0;transform:translateY(-18px) rotate(-2.5deg)}to{opacity:1;transform:none}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(-88deg)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:1ms !important;animation-delay:0ms !important;transition-duration:1ms !important}}
+@media print{body{background:#fff}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;background:#fbf9f6">
+
+  <sc-if value="{{ chrome }}" hint-placeholder-val="{{ true }}">
+    <header style="border-bottom:1px solid #0c0f14;background:#fbf9f6;position:sticky;top:0;z-index:20">
+      <div style="max-width:1280px;margin:0 auto;padding:13px 32px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center">
+        <button onClick="{{ goFloor }}" style="background:none;border:0;padding:0;cursor:pointer;font:500 16px/1.1 var(--font);letter-spacing:-0.02em;color:#0c0f14">The Lab School Playbook</button>
+        <nav style="display:flex;gap:4px">
+          <button onClick="{{ goFloor }}" style="{{ navFloor }}">The map</button>
+          <button onClick="{{ goCatalog }}" style="{{ navCards }}">Cards</button>
+          <button onClick="{{ goDecks }}" style="{{ navDecks }}">Decks</button>
+        </nav>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <sc-if value="{{ naming }}" hint-placeholder-val="{{ false }}">
+            <input value="{{ nameDraft }}" onChange="{{ onNameDraft }}" onKeyDown="{{ onNameKey }}" onBlur="{{ commitName }}" autoFocus="{{ true }}" placeholder="Name this deck" style="background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:8px 10px;font:400 13px/1.2 var(--font);width:260px;color:#0c0f14;outline:none">
+          </sc-if>
+          <sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ openActive }}" style="display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:7px 12px;cursor:pointer;color:#0c0f14">
+              <span style="font:400 12px/1.2 var(--font);color:#535350">Building</span>
+              <span style="font:500 13px/1.2 var(--font)">{{ activeName }}</span>
+              <span style="font:400 12px/1.2 var(--font);color:#535350">{{ activeCount }}</span>
+            </button>
+          </sc-if>
+          <button onClick="{{ authNavAction }}" style="background:none;border:0;padding:7px 4px;cursor:pointer;font:400 13px/1.2 var(--font);color:#535350">{{ authNavLabel }}</button>
+        </div>
+      </div>
+    </header>
+  </sc-if>
+
+  <main style="flex:1;width:100%;max-width:1280px;margin:0 auto;padding:40px 32px 88px">
+
+    <sc-if value="{{ isAuthView }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:var(--w-form);margin:0 auto">
+        <h1 style="font:500 42px/1.04 var(--font);letter-spacing:-0.035em;margin:0 0 14px">The Lab School Playbook</h1>
+        <p style="font:400 15px/1.5 var(--font);color:#535350;margin:0 0 24px">Log in to save decks and see the ones you've already saved.</p>
+        <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" onKeyDown="{{ onAuthKey }}" placeholder="Email" style="display:block;width:100%;background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 12px;font:400 14px/1.2 var(--font);color:#0c0f14;outline:none;margin-bottom:10px">
+        <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" onKeyDown="{{ onAuthKey }}" placeholder="Password" style="display:block;width:100%;background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 12px;font:400 14px/1.2 var(--font);color:#0c0f14;outline:none;margin-bottom:14px">
+        <button onClick="{{ submitAuth }}" disabled="{{ authBusy }}" style="background:#0c0f14;color:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 16px;font:400 14px/1.2 var(--font);cursor:pointer">{{ authSubmitLabel }}</button>
+        <button onClick="{{ toggleAuthView }}" style="background:none;border:0;padding:10px 4px;font:400 13px/1.2 var(--font);color:#535350;cursor:pointer">{{ authToggleLabel }}</button>
+        <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
+          <p style="font:400 13px/1.4 var(--font);color:var(--error);margin:8px 0 0">{{ authError }}</p>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isFloor }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="max-width:660px">
+          <h1 style="font:500 42px/1.04 var(--font);letter-spacing:-0.035em;margin:0 0 14px">The map</h1>
+          <p style="font:400 17px/1.55 var(--font);margin:0 0 8px;text-wrap:pretty">Identify the challenges you think you're seeing, and consider a range of moves you could make to support how to cultivate H3 imagination and translate it through to a lived reality. Collect cards and build your own custom decks to use with Lab Schools.&nbsp;<br></p>
+          <p style="font:400 13px/1.5 var(--font);color:#535350;margin:0">{{ floorSaveNote }}</p>
+        </div>
+        <sc-if value="{{ isWide }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:36px;display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+            <div style="flex:1 1 580px;min-width:0;border:1px solid #0c0f14;border-radius:8px;background:#eff0e5;overflow:hidden">
+              <svg viewBox="0 0 1200 800" width="100%" style="display:block;height:auto" onMouseLeave="{{ clearHover }}" aria-hidden="true">
+                <rect x="0" y="0" width="1200" height="800" fill="#eff0e5"></rect>
+                <g fill="none" stroke="#b8b8b1" stroke-width="1">
+                  <path d="M -20 300 C 160 250 280 480 120 780"></path>
+                  <path d="M 1220 640 C 1060 690 900 780 860 800"></path>
+                  <path d="M 420 -10 C 470 90 400 170 250 180"></path>
+                  <path d="M 1220 220 C 1120 250 1060 200 1040 120"></path>
+                </g>
+
+                <g onClick="{{ open.usecase }}" onMouseEnter="{{ hov.usecase }}" style="cursor:pointer">
+                  <polygon points="63,706 46,638 74,576 147,534 232,539 266,587 209,621 260,655 281,706 238,760 147,776 85,753" fill="none" stroke="#b8b8b1" stroke-width="1"></polygon>
+                  <polygon points="75,700 60,640 85,585 150,548 225,552 255,595 205,625 250,655 268,700 230,748 150,762 95,742" fill="{{ fill.usecase }}" stroke="#0c0f14"></polygon>
+                  <polygon points="100,688 89,644 107,603 155,576 211,579 233,610 196,633 229,655 243,688 215,724 155,734 115,719" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="125,676 118,647 130,621 161,603 197,605 211,626 187,640 209,655 217,676 199,699 161,706 134,696" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <circle cx="175" cy="635" r="15" fill="#ffffff" stroke="#0c0f14"></circle>
+                  <text x="175" y="640" text-anchor="middle" fill="#0c0f14" style="font:400 15px var(--font)">1</text>
+                  <line x1="300" y1="552" x2="190" y2="618" stroke="#0c0f14" stroke-width="1"></line>
+                  <rect x="300" y="520" width="264" height="56" fill="#ffffff" stroke="#0c0f14"></rect>
+                  <text x="316" y="546" fill="#535350" style="font:400 16px var(--font)">1</text>
+                  <text x="340" y="546" fill="#0c0f14" style="font:500 20px var(--font)">Use case definition</text>
+                  <text x="340" y="566" fill="#535350" style="font:400 14px var(--font)">3 cards</text>
+                </g>
+
+                <g onClick="{{ open.problems }}" onMouseEnter="{{ hov.problems }}" style="cursor:pointer">
+                  <polygon points="345,702 362,645 418,621 463,651 497,612 554,609 593,645 607,702 571,756 503,772 435,761 379,742" fill="none" stroke="#b8b8b1" stroke-width="1"></polygon>
+                  <polygon points="360,700 375,650 425,628 465,655 495,620 545,618 580,650 592,700 560,748 500,762 440,752 390,735" fill="{{ fill.problems }}" stroke="#0c0f14"></polygon>
+                  <polygon points="390,696 402,659 439,643 468,663 490,637 527,635 553,659 562,696 538,732 494,742 450,735 413,722" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="421,692 428,668 452,658 471,671 486,654 510,653 527,668 532,692 517,715 488,722 459,717 435,709" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <circle cx="470" cy="705" r="15" fill="#ffffff" stroke="#0c0f14"></circle>
+                  <text x="470" y="710" text-anchor="middle" fill="#0c0f14" style="font:400 15px var(--font)">2</text>
+                  <line x1="620" y1="768" x2="500" y2="722" stroke="#0c0f14" stroke-width="1"></line>
+                  <rect x="620" y="742" width="264" height="56" fill="#ffffff" stroke="#0c0f14"></rect>
+                  <text x="636" y="768" fill="#535350" style="font:400 16px var(--font)">2</text>
+                  <text x="660" y="768" fill="#0c0f14" style="font:500 20px var(--font)">Problems over solutions</text>
+                  <text x="660" y="788" fill="#535350" style="font:400 14px var(--font)">3 cards</text>
+                </g>
+
+                <g onClick="{{ open.spec }}" onMouseEnter="{{ hov.spec }}" style="cursor:pointer">
+                  <polygon points="688,650 705,592 773,558 863,569 914,616 903,682 846,732 756,735 695,698" fill="none" stroke="#b8b8b1" stroke-width="1"></polygon>
+                  <polygon points="700,650 715,598 775,568 855,578 900,620 890,678 840,722 760,725 706,692" fill="{{ fill.spec }}" stroke="#0c0f14"></polygon>
+                  <polygon points="724,649 735,611 780,589 839,596 872,627 865,670 828,703 769,705 729,681" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="749,649 756,624 785,610 823,614 845,635 840,662 816,683 777,685 751,669" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <circle cx="937" cy="700" r="18" fill="{{ fill.spec }}" stroke="#0c0f14"></circle>
+                  <circle cx="660" cy="580" r="12" fill="{{ fill.spec }}" stroke="#0c0f14"></circle>
+                  <circle cx="800" cy="655" r="15" fill="#ffffff" stroke="#0c0f14"></circle>
+                  <text x="800" y="660" text-anchor="middle" fill="#0c0f14" style="font:400 15px var(--font)">3</text>
+                  <line x1="930" y1="606" x2="828" y2="642" stroke="#0c0f14" stroke-width="1"></line>
+                  <rect x="930" y="578" width="264" height="56" fill="#ffffff" stroke="#0c0f14"></rect>
+                  <text x="946" y="604" fill="#535350" style="font:400 16px var(--font)">3</text>
+                  <text x="970" y="604" fill="#0c0f14" style="font:500 20px var(--font)">Problem specification</text>
+                  <text x="970" y="624" fill="#535350" style="font:400 14px var(--font)">4 cards</text>
+                </g>
+
+                <g onClick="{{ open.iterative }}" onMouseEnter="{{ hov.iterative }}" style="cursor:pointer">
+                  <polygon points="913,506 913,456 958,456 958,410 1009,410 1009,365 1065,365 1111,393 1133,456 1116,512 1054,540 975,538" fill="none" stroke="#b8b8b1" stroke-width="1"></polygon>
+                  <polygon points="925,500 925,455 965,455 965,415 1010,415 1010,375 1060,375 1100,400 1120,455 1105,505 1050,530 980,528" fill="{{ fill.iterative }}" stroke="#0c0f14"></polygon>
+                  <polygon points="949,487 949,454 979,454 979,424 1012,424 1012,395 1049,395 1079,413 1093,454 1082,491 1042,509 990,508" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="973,474 973,453 993,453 993,434 1014,434 1014,414 1038,414 1057,426 1067,453 1060,477 1033,489 1000,488" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <circle cx="1020" cy="450" r="15" fill="#ffffff" stroke="#0c0f14"></circle>
+                  <text x="1020" y="455" text-anchor="middle" fill="#0c0f14" style="font:400 15px var(--font)">4</text>
+                  <line x1="934" y1="356" x2="1004" y2="420" stroke="#0c0f14" stroke-width="1"></line>
+                  <rect x="880" y="300" width="264" height="56" fill="#ffffff" stroke="#0c0f14"></rect>
+                  <text x="896" y="326" fill="#535350" style="font:400 16px var(--font)">4</text>
+                  <text x="920" y="326" fill="#0c0f14" style="font:500 20px var(--font)">Iterative process</text>
+                  <text x="920" y="346" fill="#535350" style="font:400 14px var(--font)">4 cards</text>
+                </g>
+
+                <g onClick="{{ open.success }}" onMouseEnter="{{ hov.success }}" style="cursor:pointer">
+                  <polygon points="554,424 566,373 622,339 701,328 786,339 814,379 803,429 724,458 639,455" fill="none" stroke="#b8b8b1" stroke-width="1"></polygon>
+                  <polygon points="570,420 580,375 630,345 700,335 775,345 800,380 790,425 720,450 645,448" fill="{{ fill.success }}" stroke="#0c0f14"></polygon>
+                  <polygon points="601,413 609,379 646,357 697,350 753,357 771,383 764,416 712,435 657,433" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="632,405 637,384 661,369 695,364 731,369 743,386 738,408 704,420 668,419" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <g stroke="#0c0f14" fill="none">
+                    <line x1="592" y1="398" x2="792" y2="398"></line>
+                    <line x1="606" y1="372" x2="784" y2="372"></line>
+                  </g>
+                  <circle cx="690" cy="395" r="15" fill="#ffffff" stroke="#0c0f14"></circle>
+                  <text x="690" y="400" text-anchor="middle" fill="#0c0f14" style="font:400 15px var(--font)">5</text>
+                  <line x1="662" y1="470" x2="692" y2="418" stroke="#0c0f14" stroke-width="1"></line>
+                  <rect x="560" y="470" width="264" height="56" fill="#ffffff" stroke="#0c0f14"></rect>
+                  <text x="576" y="496" fill="#535350" style="font:400 16px var(--font)">5</text>
+                  <text x="600" y="496" fill="#0c0f14" style="font:500 20px var(--font)">Success definition</text>
+                  <text x="600" y="516" fill="#535350" style="font:400 14px var(--font)">2 cards</text>
+                </g>
+
+                <g onClick="{{ open.gordian }}" onMouseEnter="{{ hov.gordian }}" style="cursor:pointer">
+                  <polygon points="244,405 233,331 250,264 301,230 340,241 346,309 334,365 318,410" fill="none" stroke="#b8b8b1" stroke-width="1"></polygon>
+                  <polygon points="250,395 240,330 255,270 300,240 335,250 340,310 330,360 315,400" fill="{{ fill.gordian }}" stroke="#0c0f14"></polygon>
+                  <polygon points="262,375 254,327 266,283 299,261 325,268 328,312 321,349 310,379" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="274,356 269,324 276,296 298,281 315,286 317,315 312,339 305,358" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="355,410 344,359 355,291 372,234 423,242 459,297 451,370 412,407" fill="none" stroke="#b8b8b1" stroke-width="1"></polygon>
+                  <polygon points="360,400 350,355 360,295 375,245 420,252 452,300 445,365 410,398" fill="{{ fill.gordian }}" stroke="#0c0f14"></polygon>
+                  <polygon points="369,381 362,348 369,303 381,266 414,271 438,307 432,355 406,379" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="379,362 374,340 379,311 386,287 408,291 423,314 420,345 403,361" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <circle cx="350" cy="330" r="15" fill="#ffffff" stroke="#0c0f14"></circle>
+                  <text x="350" y="335" text-anchor="middle" fill="#0c0f14" style="font:400 15px var(--font)">6</text>
+                  <line x1="302" y1="430" x2="346" y2="352" stroke="#0c0f14" stroke-width="1"></line>
+                  <rect x="120" y="430" width="264" height="56" fill="#ffffff" stroke="#0c0f14"></rect>
+                  <text x="136" y="456" fill="#535350" style="font:400 16px var(--font)">6</text>
+                  <text x="160" y="456" fill="#0c0f14" style="font:500 20px var(--font)">Gordian knots</text>
+                  <text x="160" y="476" fill="#535350" style="font:400 14px var(--font)">4 cards</text>
+                </g>
+
+                <g onClick="{{ open.priority }}" onMouseEnter="{{ hov.priority }}" style="cursor:pointer">
+                  <polygon points="588,156 599,100 656,63 729,63 791,100 808,160 769,213 689,230 622,207" fill="none" stroke="#b8b8b1" stroke-width="1"></polygon>
+                  <polygon points="600,155 610,105 660,72 725,72 780,105 795,158 760,205 690,220 630,200" fill="{{ fill.priority }}" stroke="#0c0f14"></polygon>
+                  <polygon points="625,152 632,115 669,91 717,91 758,115 769,154 743,189 691,200 647,185" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <polygon points="649,149 654,125 678,109 709,109 736,125 743,150 726,173 692,180 664,171" fill="none" stroke="#0c0f14" stroke-width="1"></polygon>
+                  <ellipse cx="700" cy="146" rx="44" ry="30" fill="#fbf9f6" stroke="#0c0f14"></ellipse>
+                  <circle cx="700" cy="146" r="15" fill="#ffffff" stroke="#0c0f14"></circle>
+                  <text x="700" y="151" text-anchor="middle" fill="#0c0f14" style="font:400 15px var(--font)">7</text>
+                  <line x1="840" y1="122" x2="742" y2="142" stroke="#0c0f14" stroke-width="1"></line>
+                  <rect x="840" y="90" width="264" height="56" fill="#ffffff" stroke="#0c0f14"></rect>
+                  <text x="856" y="116" fill="#535350" style="font:400 16px var(--font)">7</text>
+                  <text x="880" y="116" fill="#0c0f14" style="font:500 20px var(--font)">Prioritization</text>
+                  <text x="880" y="136" fill="#535350" style="font:400 14px var(--font)">2 cards</text>
+                </g>
+                <g fill="none" stroke="#0c0f14">
+                  <circle cx="118" cy="126" r="34" fill="#ffffff"></circle>
+                  <line x1="118" y1="98" x2="118" y2="154"></line>
+                  <line x1="90" y1="126" x2="146" y2="126"></line>
+                  <polygon points="118,96 111,120 125,120" fill="#0c0f14" stroke="none"></polygon>
+                </g>
+                <text x="118" y="180" text-anchor="middle" fill="#535350" style="font:400 14px var(--font)">north</text>
+                <g stroke="#0c0f14" fill="none">
+                  <line x1="960" y1="742" x2="1100" y2="742"></line>
+                  <line x1="960" y1="736" x2="960" y2="748"></line>
+                  <line x1="1030" y1="738" x2="1030" y2="746"></line>
+                  <line x1="1100" y1="736" x2="1100" y2="748"></line>
+                </g>
+                <text x="960" y="768" fill="#535350" style="font:400 14px var(--font)">not to scale</text>
+              </svg>
+            </div>
+            <div style="flex:1 1 300px;min-width:280px">
+              
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ floorTables }}" as="t" hint-placeholder-count="7">
+                  <button onClick="{{ t.open }}" onMouseEnter="{{ t.hover }}" onMouseLeave="{{ clearHover }}" onFocus="{{ t.hover }}" onBlur="{{ clearHover }}" style="{{ t.keyStyle }}">
+                    <div style="{{ t.swatch }}"></div>
+                    <div style="flex:1;min-width:0">
+                      <div style="display:flex;gap:8px;align-items:baseline">
+                        
+                        <span style="font:500 15px/1.35 var(--font)">{{ t.challenge }}</span>
+                      </div>
+                      <div style="{{ t.lineStyle }}">{{ t.line }}</div>
+                      <div style="font:400 12px/1.4 var(--font);color:#535350;margin-top:5px">{{ t.count }}</div>
+                    </div>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isNarrow }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px">
+          <sc-for list="{{ floorTables }}" as="t" hint-placeholder-count="7">
+            <button onClick="{{ t.open }}" onMouseEnter="{{ t.hover }}" onMouseLeave="{{ clearHover }}" onFocus="{{ t.hover }}" onBlur="{{ clearHover }}" style="{{ t.tile }}">
+              <div style="{{ t.glyphBox }}">
+                <svg viewBox="0 0 120 72" width="164" height="98" fill="none" stroke-width="1" aria-hidden="true">
+                  <sc-if value="{{ t.isUsecase }}" hint-placeholder-val="{{ false }}"><g fill="{{ t.hue }}" stroke="#0c0f14"><polygon points="36.7,47.8 32.8,32.1 39.3,17.7 56.3,8 76,9 83.8,20.3 70.7,28.1 82.5,36 87.2,47.8 77.3,60.3 56.3,64 41.9,58.8"></polygon></g></sc-if>
+                  <sc-if value="{{ t.isProblems }}" hint-placeholder-val="{{ false }}"><g fill="{{ t.hue }}" stroke="#0c0f14"><polygon points="14.9,39.9 20.7,20.4 40.2,11.9 55.7,22.4 67.4,8.8 86.8,8 100.4,20.4 105.1,39.9 92.7,58.6 69.3,64 46,60.1 26.6,53.5"></polygon></g></sc-if>
+                  <sc-if value="{{ t.isSpec }}" hint-placeholder-val="{{ false }}"><g fill="{{ t.hue }}" stroke="#0c0f14"><polygon points="24.3,37.2 29.7,18.7 51.1,8 79.6,11.6 95.7,26.5 92.1,47.2 74.3,62.9 45.7,64 26.5,52.2"></polygon></g></sc-if>
+                  <sc-if value="{{ t.isIterative }}" hint-placeholder-val="{{ false }}"><g fill="{{ t.hue }}" stroke="#0c0f14"><polygon points="24.8,53.2 24.8,36.9 39.2,36.9 39.2,22.5 55.5,22.5 55.5,8 73.5,8 88,17 95.2,36.9 89.8,55 69.9,64 44.6,63.3"></polygon></g></sc-if>
+                  <sc-if value="{{ t.isSuccess }}" hint-placeholder-val="{{ false }}"><g fill="{{ t.hue }}" stroke="#0c0f14"><polygon points="8,48.4 12.5,28.1 35.1,14.5 66.8,10 100.7,14.5 112,30.3 107.5,50.7 75.8,62 41.9,61.1"></polygon></g></sc-if>
+                  <sc-if value="{{ t.isGordian }}" hint-placeholder-val="{{ false }}"><g fill="{{ t.hue }}" stroke="#0c0f14"><polygon points="26.4,62.3 22.9,39.5 28.2,18.5 43.9,8 56.2,11.5 57.9,32.5 54.4,50 49.2,64"></polygon><polygon points="64.9,64 61.4,48.3 64.9,27.3 70.2,9.8 85.9,12.2 97.1,29 94.7,51.8 82.4,63.3"></polygon></g></sc-if>
+                  <sc-if value="{{ t.isPriority }}" hint-placeholder-val="{{ false }}"><g fill="{{ t.hue }}" stroke="#0c0f14"><polygon points="23.1,39.4 26.9,20.5 45.8,8 70.4,8 91.2,20.5 96.9,40.5 83.6,58.3 57.2,64 34.5,56.4"></polygon></g></sc-if>
+                </svg>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;padding:18px 20px 20px">
+                <div style="font:400 12px/1.2 var(--font);color:#535350">{{ t.num }}</div>
+                <div style="font:500 22px/1.12 var(--font);letter-spacing:-0.025em;text-wrap:balance">{{ t.challenge }}</div>
+                <div style="{{ t.lineStyle }}">{{ t.line }}</div>
+                <div style="font:400 12px/1.2 var(--font);color:#535350;margin-top:4px">{{ t.count }}</div>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTable }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <button onClick="{{ goFloor }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 13px/1.2 var(--font);color:#535350;margin-bottom:26px">Back to the map</button>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px 56px;align-items:start">
+          <div>
+            <div style="font:400 13px/1.2 var(--font);color:#535350;margin-bottom:10px">{{ tvNum }}</div>
+            <h1 style="font:500 46px/1.02 var(--font);letter-spacing:-0.035em;margin:0 0 18px;text-wrap:balance">{{ tvChallenge }}</h1>
+            <p style="font:400 19px/1.45 var(--font);margin:0 0 34px;max-width:36ch">{{ tvLine }}</p>
+            <div style="border-top:1px solid #0c0f14;padding-top:20px;margin-bottom:34px">
+              <div style="font:400 13px/1.2 var(--font);color:#535350;margin-bottom:12px">What's happening</div>
+              <p style="font:400 26px/1.3 var(--font);letter-spacing:-0.02em;margin:0;text-wrap:pretty">{{ tvWhats }}</p>
+            </div>
+            <div style="border-top:1px solid #dbdbdb;padding-top:20px">
+              <div style="font:400 13px/1.2 var(--font);color:#535350;margin-bottom:12px">Why it might be happening</div>
+              <p style="font:400 16px/1.6 var(--font);margin:0;text-wrap:pretty">{{ tvWhy }}</p>
+            </div>
+          </div>
+          <div>
+            <div style="border:1px solid #dbdbdb;border-radius:8px;background:#fff;padding:24px">
+              <div style="font:400 13px/1.2 var(--font);color:#535350;margin-bottom:16px">Key questions</div>
+              <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column">
+                <sc-for list="{{ tvQuestions }}" as="q" hint-placeholder-count="4">
+                  <li style="{{ q.rowStyle }}">
+                    <span style="font:400 15px/1.5 var(--font);flex:1;text-wrap:pretty">{{ q.text }}</span>
+                    <button onClick="{{ q.copy }}" aria-label="Copy question" style="{{ q.btnStyle }}">{{ q.btnLabel }}</button>
+                  </li>
+                </sc-for>
+              </ul>
+            </div>
+            <sc-if value="{{ notDealt }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:28px">
+                <button onClick="{{ deal }}" style="background:#0c0f14;color:#fff;border:1px solid #0c0f14;border-radius:4px;padding:14px 22px;font:500 15px/1 var(--font);cursor:pointer">Draw the moves</button>
+                <p style="font:400 13px/1.5 var(--font);color:#535350;margin:12px 0 0">{{ tvCount }}</p>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <sc-if value="{{ dealt }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:56px;border-top:1px solid #0c0f14;padding-top:28px">
+            <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;margin-bottom:24px">
+              <h2 style="font:500 22px/1.1 var(--font);letter-spacing:-0.02em;margin:0">The moves</h2>
+              <p style="font:400 13px/1.4 var(--font);color:#535350;margin:0">{{ dealHint }}</p>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+              <sc-for list="{{ dealCards }}" as="c" hint-placeholder-count="4">
+                <div style="{{ c.wrapStyle }}">
+                  <sc-if value="{{ c.isBack }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;flex-direction:column;gap:10px;align-items:stretch">
+                      <button onClick="{{ c.turn }}" style="background:none;border:0;padding:0;cursor:pointer;display:block">
+                        <dc-import name="CardBack" table-id="{{ c.tableId }}" move="{{ c.name }}" challenge="{{ c.challenge }}" w="{{ 220 }}" hint-size="220px,308px"></dc-import>
+                      </button>
+                      <div style="display:flex;gap:8px">
+                        <button onClick="{{ c.turn }}" style="flex:1;background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:8px 10px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Turn over</button>
+                        <button onClick="{{ c.add }}" style="{{ c.addStyle }}">{{ c.addLabel }}</button>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ c.isFace }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ c.faceStyle }}">
+                      <div style="{{ c.hueBar }}"></div>
+                      <div style="padding:22px 24px 24px;display:flex;flex-direction:column;gap:14px">
+                        <div>
+                          <div style="font:400 12px/1.2 var(--font);color:#535350;margin-bottom:8px">{{ c.challenge }}</div>
+                          <h3 style="font:500 24px/1.1 var(--font);letter-spacing:-0.025em;margin:0">{{ c.name }}</h3>
+                        </div>
+                        <p style="font:400 15px/1.6 var(--font);margin:0;text-wrap:pretty">{{ c.body }}</p>
+                        <sc-if value="{{ c.hasStructure }}" hint-placeholder-val="{{ false }}">
+                          <dl style="margin:0;border-top:1px solid #dbdbdb;padding-top:14px;display:flex;flex-direction:column;gap:12px">
+                            <sc-for list="{{ c.structure }}" as="s" hint-placeholder-count="3">
+                              <div>
+                                <dt style="font:500 14px/1.3 var(--font);margin:0 0 3px">{{ s.label }}</dt>
+                                <dd style="font:400 14px/1.55 var(--font);margin:0;color:#0c0f14;text-wrap:pretty">{{ s.text }}</dd>
+                              </div>
+                            </sc-for>
+                          </dl>
+                        </sc-if>
+                        <sc-if value="{{ c.hasLink }}" hint-placeholder-val="{{ false }}">
+                          <a href="{{ c.link }}" target="_blank" rel="noopener" style="font:400 13px/1.2 var(--font)">Learn more ↗</a>
+                        </sc-if>
+                        <div style="display:flex;gap:8px;border-top:1px solid #dbdbdb;padding-top:16px;margin-top:2px">
+                          <button onClick="{{ c.turn }}" style="background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:9px 14px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Turn back</button>
+                          <button onClick="{{ c.add }}" style="{{ c.addStyle }}">{{ c.addLabel }}</button>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <h1 style="font:500 42px/1.04 var(--font);letter-spacing:-0.035em;margin:0 0 14px">Cards</h1>
+        
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px">
+          <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search moves" style="background:#fff;border:1px solid #dbdbdb;border-radius:4px;padding:10px 12px;font:400 14px/1.2 var(--font);width:260px;color:#0c0f14;outline:none">
+          <div style="margin-left:auto;display:flex;gap:4px">
+            <button onClick="{{ setGrid }}" style="{{ gridBtn }}">Cards</button>
+            <button onClick="{{ setList }}" style="{{ listBtn }}">List</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px">
+          <sc-for list="{{ chips }}" as="ch" hint-placeholder-count="8">
+            <button onClick="{{ ch.click }}" style="{{ ch.style }}">{{ ch.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ catalogEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px dashed #dbdbdb;border-radius:8px;padding:40px;text-align:left;background:#fff">
+            <p style="font:400 16px/1.5 var(--font);margin:0">Nothing matches these filters. Try clearing one, or search for something shorter.</p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ catalogGrid }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+            <sc-for list="{{ catalogCards }}" as="c" hint-placeholder-count="12">
+              <div style="{{ c.wrapStyle }}">
+                <sc-if value="{{ c.isBack }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;flex-direction:column;gap:10px">
+                    <button onClick="{{ c.turn }}" style="background:none;border:0;padding:0;cursor:pointer;display:block">
+                      <dc-import name="CardBack" table-id="{{ c.tableId }}" move="{{ c.name }}" challenge="{{ c.challenge }}" w="{{ 200 }}" hint-size="200px,280px"></dc-import>
+                    </button>
+                    <div style="display:flex;gap:8px">
+                      <button onClick="{{ c.turn }}" style="flex:1;background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:8px 10px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Turn over</button>
+                      <button onClick="{{ c.add }}" style="{{ c.addStyle }}">{{ c.addLabel }}</button>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ c.isFace }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ c.faceStyle }}">
+                    <div style="{{ c.hueBar }}"></div>
+                    <div style="padding:22px 24px 24px;display:flex;flex-direction:column;gap:14px">
+                      <div>
+                        <div style="font:400 12px/1.2 var(--font);color:#535350;margin-bottom:8px">{{ c.challenge }}</div>
+                        <h3 style="font:500 24px/1.1 var(--font);letter-spacing:-0.025em;margin:0">{{ c.name }}</h3>
+                      </div>
+                      <p style="font:400 15px/1.6 var(--font);margin:0;text-wrap:pretty">{{ c.body }}</p>
+                      <sc-if value="{{ c.hasStructure }}" hint-placeholder-val="{{ false }}">
+                        <dl style="margin:0;border-top:1px solid #dbdbdb;padding-top:14px;display:flex;flex-direction:column;gap:12px">
+                          <sc-for list="{{ c.structure }}" as="s" hint-placeholder-count="3">
+                            <div>
+                              <dt style="font:500 14px/1.3 var(--font);margin:0 0 3px">{{ s.label }}</dt>
+                              <dd style="font:400 14px/1.55 var(--font);margin:0;text-wrap:pretty">{{ s.text }}</dd>
+                            </div>
+                          </sc-for>
+                        </dl>
+                      </sc-if>
+                      <sc-if value="{{ c.hasLink }}" hint-placeholder-val="{{ false }}">
+                        <a href="{{ c.link }}" target="_blank" rel="noopener" style="font:400 13px/1.2 var(--font)">Learn more ↗</a>
+                      </sc-if>
+                      <div style="display:flex;gap:8px;border-top:1px solid #dbdbdb;padding-top:16px">
+                        <button onClick="{{ c.turn }}" style="background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:9px 14px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Turn back</button>
+                        <button onClick="{{ c.add }}" style="{{ c.addStyle }}">{{ c.addLabel }}</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ catalogList }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid #dbdbdb;border-radius:8px;background:#fff;overflow:hidden">
+            <sc-for list="{{ catalogCards }}" as="c" hint-placeholder-count="12">
+              <div style="{{ c.rowStyle }}">
+                <div style="{{ c.swatch }}"></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font:500 15px/1.3 var(--font)">{{ c.name }}</div>
+                  <div style="font:400 12px/1.4 var(--font);color:#535350">{{ c.challenge }}</div>
+                </div>
+                <p style="flex:2;min-width:220px;font:400 13px/1.5 var(--font);color:#0c0f14;margin:0">{{ c.snippet }}</p>
+                <button onClick="{{ c.add }}" style="{{ c.addStyle }}">{{ c.addLabel }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDecks }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <sc-if value="{{ decksNeedsLogin }}" hint-placeholder-val="{{ false }}">
+          <div style="max-width:520px">
+            <h1 style="font:500 42px/1.04 var(--font);letter-spacing:-0.035em;margin:0 0 14px">Decks</h1>
+            <p style="font:400 15px/1.5 var(--font);color:#535350;margin:0 0 20px">Log in to see and save your decks.</p>
+            <button onClick="{{ goAuth }}" style="background:#0c0f14;color:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 16px;font:400 14px/1.2 var(--font);cursor:pointer">Log in</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ decksLoggedIn }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin-bottom:30px">
+            <div>
+              <h1 style="font:500 42px/1.04 var(--font);letter-spacing:-0.035em;margin:0 0 10px">Decks</h1>
+              <p style="font:400 15px/1.5 var(--font);color:#535350;margin:0">{{ decksSummary }}</p>
+            </div>
+            <button onClick="{{ newDeck }}" style="margin-left:auto;background:#0c0f14;color:#fff;border:1px solid #0c0f14;border-radius:4px;padding:12px 18px;font:500 14px/1 var(--font);cursor:pointer">New deck</button>
+          </div>
+          <sc-if value="{{ decksEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px dashed #dbdbdb;border-radius:8px;padding:40px;background:#fff">
+              <p style="font:400 16px/1.5 var(--font);margin:0">Nothing here yet. Start at a table, or build a deck by hand from the cards.</p>
+            </div>
+          </sc-if>
+          <div style="border:1px solid #dbdbdb;border-radius:8px;background:#fff;overflow:hidden">
+            <sc-for list="{{ deckRows }}" as="d" hint-placeholder-count="2">
+              <div style="{{ d.rowStyle }}">
+                <button onClick="{{ d.open }}" style="background:none;border:0;padding:0;cursor:pointer;text-align:left;flex:1;min-width:200px">
+                  <div style="font:500 17px/1.3 var(--font);color:#0c0f14">{{ d.name }}</div>
+                  <div style="font:400 12px/1.4 var(--font);color:#535350">{{ d.meta }}</div>
+                </button>
+                <div style="display:flex;gap:3px;align-items:center">
+                  <sc-for list="{{ d.hues }}" as="h" hint-placeholder-count="4">
+                    <div style="{{ h.style }}" title="{{ h.label }}"></div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button onClick="{{ d.dup }}" style="background:#fff;border:1px solid #dbdbdb;border-radius:4px;padding:8px 12px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Duplicate</button>
+                  <button onClick="{{ d.del }}" style="{{ d.delStyle }}">{{ d.delLabel }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDeck }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <button onClick="{{ goDecks }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 13px/1.2 var(--font);color:#535350;margin-bottom:22px">All decks</button>
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin-bottom:10px">
+          <div style="flex:1;min-width:280px">
+            <div style="font:400 13px/1.2 var(--font);color:#535350;margin-bottom:10px">Stack the deck</div>
+            <input value="{{ deckName }}" onChange="{{ onDeckName }}" placeholder="Name this deck" style="width:100%;max-width:560px;background:none;border:0;border-bottom:1px solid #0c0f14;padding:0 0 8px;font:500 34px/1.1 var(--font);letter-spacing:-0.03em;color:#0c0f14;outline:none">
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onClick="{{ goCatalog }}" style="background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:11px 15px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Add more cards</button>
+            <button onClick="{{ goPrint }}" style="background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:11px 15px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Print view</button>
+            <button onClick="{{ exportDeck }}" style="background:#fff;border:1px solid #dbdbdb;border-radius:4px;padding:11px 15px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">{{ exportLabel }}</button>
+          </div>
+        </div>
+        <p style="font:400 13px/1.5 var(--font);color:#535350;margin:0 0 30px">{{ deckComposition }}</p>
+
+        <sc-if value="{{ deckEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px dashed #dbdbdb;border-radius:8px;padding:40px;background:#fff">
+            <p style="font:400 16px/1.5 var(--font);margin:0">No cards in this deck yet. Add some from a table or from the cards list.</p>
+          </div>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ deckEntries }}" as="e" hint-placeholder-count="3">
+            <div draggable="{{ true }}" onDragStart="{{ e.dragStart }}" onDragOver="{{ e.dragOver }}" onDrop="{{ e.drop }}" onDragEnd="{{ e.dragEnd }}" style="{{ e.rowStyle }}">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:2px">
+                <div style="font:400 13px/1 var(--font);color:#535350">{{ e.pos }}</div>
+                <div style="display:flex;flex-direction:column;gap:3px">
+                  <button onClick="{{ e.up }}" aria-label="Move up" style="{{ e.moveStyle }}">↑</button>
+                  <button onClick="{{ e.down }}" aria-label="Move down" style="{{ e.moveStyle }}">↓</button>
+                </div>
+                <div style="font:400 11px/1.2 var(--font);color:#8f8f88;cursor:grab">drag</div>
+              </div>
+              <dc-import name="CardBack" table-id="{{ e.tableId }}" move="{{ e.name }}" challenge="{{ e.challenge }}" w="{{ 150 }}" hint-size="150px,210px"></dc-import>
+              <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:12px">
+                <div>
+                  <div style="font:500 19px/1.2 var(--font);letter-spacing:-0.02em">{{ e.name }}</div>
+                  <div style="font:400 12px/1.4 var(--font);color:#535350">{{ e.challenge }}</div>
+                </div>
+                <p style="font:400 14px/1.55 var(--font);margin:0;color:#0c0f14;text-wrap:pretty">{{ e.snippet }}</p>
+                <textarea value="{{ e.note }}" onChange="{{ e.onNote }}" placeholder="How you'll use it here. Who's in the room, how long it takes." rows="{{ 2 }}" style="width:100%;background:#fbf9f6;border:1px solid #dbdbdb;border-radius:4px;padding:10px 12px;font:400 14px/1.5 var(--font);color:#0c0f14;outline:none;resize:vertical"></textarea>
+              </div>
+              <button onClick="{{ e.remove }}" aria-label="Remove card" style="align-self:flex-start;background:#fff;border:1px solid #dbdbdb;border-radius:4px;padding:8px 12px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Remove</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPrint }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:640px;margin:0 auto">
+        <div style="display:flex;gap:10px;margin-bottom:34px">
+          <button onClick="{{ openActive }}" style="background:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 14px;font:400 13px/1.2 var(--font);cursor:pointer;color:#0c0f14">Back to the deck</button>
+          <button onClick="{{ doPrint }}" style="background:#0c0f14;color:#fff;border:1px solid #0c0f14;border-radius:4px;padding:10px 14px;font:500 13px/1.2 var(--font);cursor:pointer">Print</button>
+        </div>
+        <h1 style="font:500 34px/1.1 var(--font);letter-spacing:-0.03em;margin:0 0 8px">{{ deckName }}</h1>
+        <p style="font:400 13px/1.4 var(--font);color:#535350;margin:0 0 34px">{{ deckComposition }}</p>
+        <div style="display:flex;flex-direction:column;gap:30px">
+          <sc-for list="{{ printEntries }}" as="e" hint-placeholder-count="3">
+            <div style="border-top:1px solid #0c0f14;padding-top:18px;display:flex;gap:18px;align-items:flex-start">
+              <div style="font:400 13px/1.4 var(--font);color:#535350;width:24px;flex:none">{{ e.pos }}</div>
+              <div style="flex:1">
+                <h2 style="font:500 22px/1.2 var(--font);letter-spacing:-0.02em;margin:0 0 4px">{{ e.name }}</h2>
+                <div style="font:400 12px/1.4 var(--font);color:#535350;margin-bottom:12px">{{ e.challenge }}</div>
+                <p style="font:400 15px/1.6 var(--font);margin:0 0 12px;text-wrap:pretty">{{ e.body }}</p>
+                <sc-if value="{{ e.hasStructure }}" hint-placeholder-val="{{ false }}">
+                  <dl style="margin:0 0 12px;display:flex;flex-direction:column;gap:9px">
+                    <sc-for list="{{ e.structure }}" as="s" hint-placeholder-count="3">
+                      <div>
+                        <dt style="font:500 14px/1.3 var(--font);margin:0 0 2px">{{ s.label }}</dt>
+                        <dd style="font:400 14px/1.55 var(--font);margin:0">{{ s.text }}</dd>
+                      </div>
+                    </sc-for>
+                  </dl>
+                </sc-if>
+                <sc-if value="{{ e.hasLink }}" hint-placeholder-val="{{ false }}">
+                  <p style="margin:0 0 12px"><a href="{{ e.link }}" target="_blank" rel="noopener" style="font:400 13px/1.2 var(--font)">Learn more ↗</a></p>
+                </sc-if>
+                <sc-if value="{{ e.hasNote }}" hint-placeholder-val="{{ false }}">
+                  <p style="{{ e.noteStyle }}">{{ e.note }}</p>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;turnStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;flip&quot;,&quot;expand&quot;],&quot;default&quot;:&quot;flip&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dealStagger&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:70,&quot;min&quot;:0,&quot;max&quot;:160,&quot;unit&quot;:&quot;ms&quot;,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  static HUES = {
+    usecase: '#b0d4ff', problems: '#bd9984', spec: '#a2dff0', iterative: '#c8ff3d',
+    success: '#c3c96e', gordian: '#ffb6f1', priority: '#c1bab2'
+  };
+
+  static TABLES = [
+    {
+      id: 'usecase', challenge: 'Use case definition',
+      line: 'They can\u2019t say what\u2019s genuinely transformational.',
+      whats: 'Schools have difficulty articulating their truly H3 use cases and/or assume that using new technology automatically makes something H3.',
+      why: 'Schools usually procure software \u2014 a pre-packaged solution that belongs to a defined category. We are asking them to think about challenges and opportunities to design solutions for, and they don\u2019t necessarily know which of those fit with an AI-enabled software paradigm, so they fall back to the defined software categories they are familiar with.',
+      questions: [
+        'What are the deep distinctives behind the school model?',
+        'What are the biggest bets the school is making to bring their model to life?',
+        'Where are the biggest leverage points for transformational impact?'
+      ],
+      cards: [
+        { id: 'vision-calibration', name: 'Vision calibration', body: 'Dig into the vision, mission, philosophy, and defined distinctives with the school.' },
+        { id: 'future-cones', name: 'Future cones', body: 'Within a defined time frame, explore what could be probable, plausible, possible. You can use different thematic or conceptual areas to generate both directly related and tangential influences.' },
+        { id: 'design-fiction', name: 'Design fiction', body: 'Come up with a narrative set in the school in 5 years as a means of getting them to express big dream ideas.' }
+      ]
+    },
+    {
+      id: 'problems', challenge: 'Problems over solutions',
+      line: 'They\u2019re in love with a solution.',
+      whats: 'Schools fall in love with a specific solution rather than an acutely felt problem.',
+      why: 'Similar to use case definition, acquiring solutions fits known behavior patterns better. Defining a problem with clarity and then developing the solution that works for that problem is a different orientation and a different skill, so it will not always be the natural first direction (and sometimes an off the shelf solution actually does solve the problem well enough).',
+      questions: [
+        'How well do they understand the problem they are trying to solve? Who is affected, how are they affected, why are they affected, why do they care about solving it?',
+        'How clearly can they articulate how they\u2019d know that a solution actually works? (Note: not what they want the solution to do, but what outcome they want it to produce)'
+      ],
+      cards: [
+        { id: 'classify-by-stage', name: 'Classify by stage of development', body: 'Classify the problem by stage of development and focus on just what needs to be done to move to the next stage.', structure: [
+          { label: 'Exploration (least developed)', text: 'You\u2019re working on getting a better understanding of the problem and why it matters to solve.' },
+          { label: 'Prototyping', text: 'For a well-defined problem, you\u2019re exploring a range of options to see how well each can actually solve the problem.' },
+          { label: 'Development (most developed)', text: 'You have a working prototype that solves the problem, and now you\u2019re refining it to integrate into normal use.' }
+        ] },
+        { id: 'solution-interrogation', name: 'Solution interrogation', body: 'Work backwards from the solution they are asking for to understand the underlying problem behind it, what else they\u2019ve tried to address that problem, where the shortcomings of previous solutions have been.' },
+        { id: 'storyboarding', name: 'Storyboarding', body: 'To understand core elements of the problem, build a scenario around who would be using the solution, in what circumstances, why, and how.' }
+      ]
+    },
+    {
+      id: 'spec', challenge: 'Problem specification',
+      line: 'They can\u2019t see what might break.',
+      whats: 'Schools have difficulty identifying the risks and unknowns within a problem space that will determine whether a solution can actually work.',
+      why: 'Disaggregating all of the elements that influence how well a product works is a lot \u2014 it\u2019s a combination of both external contextual factors and a variety of different solution components. Most people only evaluate on the basis of the outcome and aren\u2019t oriented toward evaluating a complex system (also, some people are overly optimistic).',
+      questions: [
+        'What could go wrong?',
+        'What have you seen go wrong with this in the past?',
+        'What elements of what you\u2019re currently doing with this problem are working well? Why?',
+        'What elements aren\u2019t working well? Why?',
+        'What signals have you seen that make you think this is the right direction to go?',
+        'What signals have you seen that make you question or doubt this direction?'
+      ],
+      cards: [
+        { id: 'premortem', name: 'Premortem', body: 'Have them imagine a year in the future where this product has proven to be an utter disaster and talk through what would have gone wrong to identify risks.' },
+        { id: 'svpg-4-risks', name: 'SVPG 4 risks', body: 'New products always have to address 4 categories of risk. Work with them to lay out and evaluate the quality of the evidence they have for each category.', structure: [
+          { label: 'First', text: 'Value (does anyone want it) and feasibility (can it actually produce the value).' },
+          { label: 'Then', text: 'Usability (can the user access the value) and viability (does it work within the organization\u2019s financial model).' }
+        ] },
+        { id: 'solid-jelly-vapor', name: 'Solid / Jelly / Vapor', body: 'To make intuitive evaluation of problems visible, classify understanding of the problem or confidence in the proposed solution as Solid (super confident we\u2019ve got it right), Jelly (we\u2019ve got some strong insight or evidence, but not totally sure), or Vapor (this is an early idea with not much behind it yet). To ground intuitions, make the evidence behind each claim explicit and determine if the strength of the evidence matches up with the confidence level.' },
+        { id: 'business-model-canvas', name: 'Business Model Canvas', body: '(Or similar.) It\u2019s imperfect, but it helps expose any of the essential elements to make a product work and can be used with a red/yellow/green classification system to identify the evidence for how well different pieces of the overall picture are working.' }
+      ]
+    },
+    {
+      id: 'iterative', challenge: 'Iterative process',
+      line: 'They\u2019re trying to get it right the first time.',
+      whats: 'Schools don\u2019t plan for an iterative process and try to get everything right the first time.',
+      why: 'There are a few different dynamics in play. Often in schools, a certain thing only happens at one particular time in the school year, so if it doesn\u2019t work at that particular time, then it\u2019s a whole year before you can try it again. Teachers also frequently get shiny new things foisted on them that don\u2019t actually live up to the hype, so there\u2019s fear of rolling something out that doesn\u2019t work as advertised.',
+      questions: [
+        'How would we know that this is moving in the right direction?',
+        'What opportunities do we have to test this small before rolling out big?',
+        'What is essential to get right immediately vs nice to have?',
+        'What is truly novel about what we\u2019re trying to do?'
+      ],
+      cards: [
+        { id: 'monkey-pedestal', name: 'Monkey & pedestal', body: 'Identify what is the actual hard, unknown part of this problem vs. the parts that are straightforward but require some effort. Start with the monkey, not the pedestal.' },
+        { id: 'wood-block-prototype', name: 'The wood block prototype', body: 'Resist the temptation to jump to MVP. Prototypes can help you develop understanding of parts of a solution without actually building a fully functional version of the solution. A prototype is a test to learn, whereas an MVP is a test to validate the full picture of what you\u2019ve built.' },
+        { id: 'sqc-tests', name: 'Smallest, quickest, cheapest tests', body: 'Match the scope of your test to your level of understanding and certainty about problem and solution. The goal is to find the right solution as efficiently as possible, which means throwing out wrong solutions at the earliest possible point.' },
+        { id: 'proxy-tests', name: 'The good enough proxy tests', body: 'A corollary to smallest, quickest, cheapest tests \u2014 not all prototype tests have to happen with the target user. Lots of early prototypes never leave the lab because a colleague played around with it and surfaced a problem. Don\u2019t let the desire for the perfect test hold you back from getting into testing quickly.' }
+      ]
+    },
+    {
+      id: 'success', challenge: 'Success definition',
+      line: 'They can\u2019t say what a win looks like.',
+      whats: 'Schools have difficulty specifying testing metrics and success criteria.',
+      why: 'Sometimes it\u2019s a matter of searching for a silver bullet \u2014 the problem itself is too vast in scope, so there\u2019s a huge number of imprecise metrics or a single monolithic one that is unrealistic. Sometimes it\u2019s a matter of lack of experience in measurement and analysis that leads to a tendency to want to measure sentiment. (Tangent: survey results not paired with some sort of behavioral indicator are not to be trusted.)',
+      questions: [
+        'If this problem was solved, what would be different?',
+        'What would the target user do that indicated the solution was working for them?',
+        'How can we measure outcome and impact rather than sentiment?',
+        'How can we measure how well specific aspects are working before we test the whole thing?'
+      ],
+      cards: [
+        { id: 'contrasting-cases', name: 'Contrasting cases', body: 'Similar to a premortem, except it is imagining a best case and a worst case scenario at some point in the future after introducing a solution. This surfaces differences and identifies actual changes that indicate success.' },
+        { id: 'ryg-bands', name: 'Red / Yellow / Green bands', body: 'Sometimes the challenge is figuring out what the right level of performance is to evaluate something. Instead of defining binaries, define ranges.', structure: [
+          { label: 'Red (<x) \u2014 back to the drawing board', text: 'A metric that falls below this threshold indicates that this is not the right approach to the problem.' },
+          { label: 'Yellow (x\u2013y) \u2014 moving in the right direction', text: 'This at least confirms the approach and might even be good enough for now (i.e., you can focus less on optimizing this piece and focus on something else that\u2019s in worse shape).' },
+          { label: 'Green (>y) \u2014 good to go', text: 'Something that falls above this threshold is working as well as we need it to.' }
+        ] }
+      ]
+    },
+    {
+      id: 'gordian', challenge: 'Gordian knots',
+      line: 'Nothing can work until everything works.',
+      whats: 'Schools have a big, entangled idea where no piece can work without the whole thing being built.',
+      why: 'This is usually indicative of a really ambitious vision and a somewhat fixed point of view about how to reach that vision, but a lack of corresponding clarity about how to get from here to there.',
+      questions: [
+        'How can we break this down into its specific elements to understand what each part needs to do?',
+        'How can we determine if each part is working on its own before we try and test it all together?',
+        'What alternatives are there for achieving similar outcomes?'
+      ],
+      cards: [
+        { id: 'surface-assumptions', name: 'Surface the underpinning assumptions', body: 'Often the person who has a Gordian knot has been trying to untie it for a long time and has a lot of insights about the problem space. Make as much of their conceptual model explicit, and identify the key assumptions about what it takes to untie the knot (and sometimes stress test those assumptions).' },
+        { id: 'map-the-system', name: 'Map the system', body: 'Disentangle and disaggregate. Identify all of the different elements of the system that work together, plot out the relationships, and spell out what each piece is supposed to do independently.' },
+        { id: 'leverage-point', name: 'Find the leverage point', body: 'There are a few potential leverage points to look for.', structure: [
+          { label: 'The monkey', text: 'As in Monkey & Pedestal, the most unknown and uncertain part of the system. If it doesn\u2019t work, the whole system doesn\u2019t work. If you have a monkey, start with the monkey.' },
+          { label: 'The key dependency', text: 'Identify whether there is an element of the system that needs to do the heaviest lifting. Are lots of other parts of the system dependent on it? In a linear process this could be the first part of the system, but it isn\u2019t always.' },
+          { label: 'The handoff', text: 'Sometimes there\u2019s a critical or sensitive handoff between two (or more) parts of a system, and the biggest issue is the way that something moves from one to the other.' },
+          { label: 'The beginning', text: 'If you can\u2019t find one of the other leverage points, start at the beginning with whatever triggers the system into action.' }
+        ] },
+        { id: 'explore-alternatives', name: 'Explore alternatives', body: 'In the spirit of falling in love with problems over solutions, surface the outcome(s) that the knot is meant to achieve and explore alternative versions of the knot or opportunities to modularize the system.' }
+      ]
+    },
+    {
+      id: 'priority', challenge: 'Prioritization',
+      line: 'Everything feels urgent.',
+      whats: 'Schools want to do everything at once, resulting in incremental growth across the board, and/or schools focus on low leverage use cases that are the most feasible but don\u2019t actually have transformative potential.',
+      why: 'When you\u2019re deep in the day to day realities, you see every little thing that isn\u2019t working right and feel the impact of it. You\u2019re also sitting in the heart of a complex adaptive system, so the most natural approach to those problems is reactivity. Even when you step back from it, everything feels urgent.',
+      questions: [
+        'What is at the highest risk of breaking soon?',
+        'What would be the most difficult break for us to recover from, even if it\u2019s low likelihood?',
+        'If you could only bet on 1 thing to make the biggest impact, what would it be?'
+      ],
+      cards: [
+        { id: 'eisenhower', name: 'The critical / urgent Eisenhower matrix', body: 'Plot all of the possible directions and ideas on the x-axis from left (least critical) to right (most critical), then \u2014 maintaining their x-axis position \u2014 plot them on the y-axis from bottom (least urgent) to top (most urgent).', structure: [
+          { label: 'Critical', text: 'Most damage if it breaks.' },
+          { label: 'Urgent', text: 'Most at risk of breaking.' }
+        ] },
+        { id: 'dev-staging', name: 'Product development staging', body: 'To combat the urge to get everything now, classify every possible direction into 4 categories.', structure: [
+          { label: 'Backlog', text: 'A known problem that we\u2019re not focusing on now.' },
+          { label: 'Exploration', text: 'A known problem that we need to understand better, specifically how we\u2019d know if we were solving it well.' },
+          { label: 'Prototyping', text: 'A problem where we\u2019d know how to tell if it was getting better, but we don\u2019t know what the solution is.' },
+          { label: 'Development', text: 'A problem where we have the right solution, but we need to make it work for wide use.' }
+        ] }
+      ]
+    }
+  ];
+
+  static SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
+  static SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
+  static sb() {
+    if (!Component._sb) {
+      Component._sb = window.supabase.createClient(Component.SUPABASE_URL, Component.SUPABASE_ANON_KEY);
+    }
+    return Component._sb;
+  }
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      view: 'floor', tableId: null, dealt: false, faceUp: [],
+      decks: [], activeId: null, openId: null,
+      filter: null, query: '', mode: 'grid', hover: null, copied: null,
+      naming: false, nameDraft: '', confirmDel: null, exported: false, dragFrom: null,
+      wide: true,
+      session: null, authView: 'login', authReturnView: null,
+      authEmail: '', authPassword: '', authError: '', authBusy: false
+    };
+    this.onResize = () => {
+      const wide = window.innerWidth >= 720;
+      if (wide !== this.state.wide) this.setState({ wide });
+    };
+  }
+
+  componentDidMount() {
+    this.onResize(); window.addEventListener('resize', this.onResize);
+    Component.sb().auth.getSession().then(({ data }) => this.applySession(data.session));
+    this._authSub = Component.sb().auth.onAuthStateChange((_evt, session) => this.applySession(session)).data.subscription;
+    fetch('/api/cards').then(r => r.json()).then(cards => {
+      if (cards && cards.error) throw new Error(cards.error);
+      this.applyNotionCards(cards);
+    }).catch(e => console.warn('Could not load cards from Notion, keeping built-in card text.', e));
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+    if (this._authSub) this._authSub.unsubscribe();
+  }
+
+  // Replaces each table's hardcoded `cards` with the live rows from the
+  // Notion "Moves Library" database, matched to a table by its `challenge`
+  // name (case-insensitive — the wording in the app and in Notion differs
+  // in casing only). Tables keep their own line/whats/why/questions text;
+  // only the move cards themselves come from Notion.
+  applyNotionCards(cards) {
+    const byChallenge = {};
+    cards.forEach(c => {
+      if (!c.challenge) return;
+      const key = c.challenge.trim().toLowerCase();
+      (byChallenge[key] = byChallenge[key] || []).push({ id: c.id, name: c.name, body: c.body, link: c.link });
+    });
+    Component.TABLES.forEach(t => {
+      const key = t.challenge.trim().toLowerCase();
+      if (byChallenge[key]) t.cards = byChallenge[key];
+    });
+    this.forceUpdate();
+  }
+
+  applySession(session) {
+    const prevUid = this.state.session && this.state.session.user && this.state.session.user.id;
+    const uid = session && session.user && session.user.id;
+    this.setState({ session }, () => {
+      if (uid && uid !== prevUid) {
+        const returnView = this.state.view === 'auth' ? (this.state.authReturnView || 'floor') : this.state.view;
+        this.load().then(({ decks, activeId }) => this.setState({ decks, activeId, openId: activeId, view: returnView }));
+      }
+      if (!uid) this.setState({ decks: [], activeId: null, openId: null });
+    });
+  }
+
+  goAuth() {
+    this.setState({ view: 'auth', authReturnView: this.state.view === 'auth' ? this.state.authReturnView : this.state.view, authError: '' });
+  }
+
+  submitAuth() {
+    const { authView, authEmail, authPassword } = this.state;
+    if (!authEmail || !authPassword) { this.setState({ authError: 'Enter an email and password.' }); return; }
+    this.setState({ authBusy: true, authError: '' });
+    const call = authView === 'signup'
+      ? Component.sb().auth.signUp({ email: authEmail, password: authPassword })
+      : Component.sb().auth.signInWithPassword({ email: authEmail, password: authPassword });
+    call.then(({ error }) => {
+      this.setState({ authBusy: false });
+      if (error) this.setState({ authError: error.message });
+      // on success, onAuthStateChange fires applySession() automatically
+    });
+  }
+
+  // ---- store (server-backed via Supabase) ----
+  async load() {
+    const uid = this.state.session && this.state.session.user && this.state.session.user.id;
+    if (!uid) return { decks: [], activeId: null };
+    const { data } = await Component.sb().from('decks_store').select('data').eq('user_id', uid).maybeSingle();
+    if (data && data.data && Array.isArray(data.data.decks) && data.data.decks.length) {
+      return { decks: data.data.decks, activeId: data.data.activeId || data.data.decks[0].id };
+    }
+    const seed = [{
+      id: 'd-not-alpha', name: 'Not Alpha School \u2014 Oct site visit',
+      createdAt: Date.now(), updatedAt: Date.now(),
+      entries: [
+        { cardId: '3dea9d37-78c5-81b8-98fb-c441a2b34f2e', note: 'Open with this. They arrive with the platform already chosen.' },
+        { cardId: '3dea9d37-78c5-8159-af32-fc98b56ec698', note: 'Whole leadership team, 40 min.' },
+        { cardId: '3dea9d37-78c5-819e-9a62-ccc2d1f9ecb5', note: 'Only if success talk stays vague after lunch.' }
+      ]
+    }];
+    await Component.sb().from('decks_store').upsert({ user_id: uid, data: { decks: seed, activeId: 'd-not-alpha' } });
+    return { decks: seed, activeId: 'd-not-alpha' };
+  }
+  save(decks, activeId) {
+    const uid = this.state.session && this.state.session.user && this.state.session.user.id;
+    if (!uid) return;
+    Component.sb().from('decks_store').upsert({
+      user_id: uid, data: { decks, activeId }, updated_at: new Date().toISOString()
+    }).then(({ error }) => { if (error) console.error(error); });
+  }
+  commit(decks, activeId) {
+    const id = activeId === undefined ? this.state.activeId : activeId;
+    this.save(decks, id);
+    this.setState({ decks, activeId: id });
+  }
+  // -------------------------------------------------------------
+
+  allCards() {
+    const out = [];
+    Component.TABLES.forEach(t => t.cards.forEach(c => out.push(Object.assign({}, c, {
+      tableId: t.id, challenge: t.challenge, hue: Component.HUES[t.id]
+    }))));
+    return out;
+  }
+  card(id) { return this.allCards().find(c => c.id === id); }
+  table(id) { return Component.TABLES.find(t => t.id === id); }
+  deck(id) { return this.state.decks.find(d => d.id === id); }
+  activeDeck() { return this.deck(this.state.activeId); }
+
+  touch(deckId, mutate) {
+    const decks = this.state.decks.map(d => d.id === deckId ? mutate(Object.assign({}, d, { updatedAt: Date.now() })) : d);
+    this.commit(decks);
+  }
+
+  addCard(cardId) {
+    let deckId = this.state.activeId;
+    if (!deckId || !this.deck(deckId)) {
+      deckId = 'd-' + Date.now();
+      const deck = { id: deckId, name: 'Untitled deck', createdAt: Date.now(), updatedAt: Date.now(), entries: [{ cardId, note: '' }] };
+      this.save(this.state.decks.concat([deck]), deckId);
+      this.setState({ decks: this.state.decks.concat([deck]), activeId: deckId, openId: deckId, naming: true, nameDraft: '' });
+      return;
+    }
+    const deck = this.deck(deckId);
+    if (deck.entries.some(e => e.cardId === cardId)) return;
+    this.touch(deckId, d => Object.assign({}, d, { entries: d.entries.concat([{ cardId, note: '' }]) }));
+  }
+
+  reorder(deckId, from, to) {
+    if (to < 0) return;
+    this.touch(deckId, d => {
+      const entries = d.entries.slice();
+      if (to >= entries.length) return d;
+      const [moved] = entries.splice(from, 1);
+      entries.splice(to, 0, moved);
+      return Object.assign({}, d, { entries });
+    });
+  }
+
+  fmtDate(ts) {
+    try { return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); } catch (e) { return ''; }
+  }
+
+  composition(deck) {
+    if (!deck || !deck.entries.length) return 'No cards yet.';
+    const counts = {};
+    deck.entries.forEach(e => {
+      const c = this.card(e.cardId);
+      if (c) counts[c.challenge] = (counts[c.challenge] || 0) + 1;
+    });
+    const parts = Object.keys(counts).map(k => k + ' ' + counts[k]);
+    return deck.entries.length + (deck.entries.length === 1 ? ' card. ' : ' cards. ') + parts.join(', ') + '.';
+  }
+
+  btn(active) {
+    return {
+      background: active ? '#eff0e5' : 'none', border: '1px solid ' + (active ? '#0c0f14' : 'transparent'),
+      borderRadius: '4px', padding: '7px 12px', cursor: 'pointer',
+      font: (active ? '500 ' : '400 ') + '14px/1.2 var(--font)', color: '#0c0f14'
+    };
+  }
+  addBtn(inDeck) {
+    return {
+      background: inDeck ? '#eff0e5' : '#0c0f14', color: inDeck ? '#0c0f14' : '#ffffff',
+      border: '1px solid #0c0f14', borderRadius: '4px', padding: '8px 12px',
+      font: '400 13px/1.2 var(--font)', cursor: inDeck ? 'default' : 'pointer', whiteSpace: 'nowrap'
+    };
+  }
+
+  cardVM(c, i, w) {
+    const faceUp = this.state.faceUp.indexOf(c.id) >= 0;
+    const deck = this.activeDeck();
+    const inDeck = !!(deck && deck.entries.some(e => e.cardId === c.id));
+    const step = Number(this.props.dealStagger ?? 70);
+    const stagger = Math.min(i, 9) * step;
+    const flip = (this.props.turnStyle || 'flip') === 'flip';
+    return {
+      id: c.id, name: c.name, challenge: c.challenge, tableId: c.tableId, body: c.body,
+      structure: c.structure || [], hasStructure: !!(c.structure && c.structure.length),
+      link: c.link || null, hasLink: !!c.link,
+      snippet: c.body.length > 150 ? c.body.slice(0, 150).trim() + '\u2026' : c.body,
+      isBack: !faceUp, isFace: faceUp,
+      wrapStyle: { animation: 'dealIn 380ms var(--ease-medium) both', animationDelay: stagger + 'ms' },
+      faceStyle: {
+        width: 'min(470px, 100%)', background: '#ffffff', border: '1px solid #0c0f14',
+        borderRadius: '4px', overflow: 'hidden',
+        animation: (flip ? 'flipIn 260ms' : 'fadeIn 220ms') + ' var(--ease-medium) both'
+      },
+      hueBar: { height: '10px', background: c.hue },
+      swatch: { width: '14px', height: '34px', borderRadius: '2px', background: c.hue, border: '1px solid #0c0f14', flex: 'none' },
+      rowStyle: {
+        display: 'flex', gap: '18px', alignItems: 'center', padding: '16px 20px',
+        borderTop: i === 0 ? '0' : '1px solid #dbdbdb', flexWrap: 'wrap'
+      },
+      addStyle: this.addBtn(inDeck), addLabel: inDeck ? 'In deck' : 'Add to deck',
+      turn: () => this.setState(s => ({
+        faceUp: s.faceUp.indexOf(c.id) >= 0 ? s.faceUp.filter(x => x !== c.id) : s.faceUp.concat([c.id])
+      })),
+      add: () => { if (!inDeck) this.addCard(c.id); }
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const view = s.view;
+    const deck = this.deck(s.openId) || this.activeDeck();
+    const active = this.activeDeck();
+    const t = this.table(s.tableId);
+    const all = this.allCards();
+
+    // catalog filtering
+    const q = s.query.trim().toLowerCase();
+    const filtered = all.filter(c => {
+      if (s.filter && c.tableId !== s.filter) return false;
+      if (!q) return true;
+      return (c.name + ' ' + c.body).toLowerCase().indexOf(q) >= 0;
+    });
+
+    const chips = [{ label: 'All moves', id: null }].concat(Component.TABLES.map(x => ({ label: x.challenge, id: x.id })))
+      .map(ch => {
+        const on = s.filter === ch.id;
+        return {
+          label: ch.label, click: () => this.setState({ filter: ch.id }),
+          style: {
+            background: on ? '#feffa0' : '#ffffff', border: '1px solid ' + (on ? '#0c0f14' : '#dbdbdb'),
+            borderRadius: '999px', padding: '7px 14px', cursor: 'pointer',
+            font: (on ? '500 ' : '400 ') + '13px/1.2 var(--font)', color: '#0c0f14'
+          }
+        };
+      });
+
+    const deckEntries = !deck ? [] : deck.entries.map((e, i) => {
+      const c = this.card(e.cardId) || { name: 'Missing card', challenge: '', body: '', tableId: 'usecase' };
+      return {
+        pos: i + 1, name: c.name, challenge: c.challenge, tableId: c.tableId,
+        note: e.note || '',
+        snippet: c.body.length > 190 ? c.body.slice(0, 190).trim() + '\u2026' : c.body,
+        rowStyle: {
+          display: 'flex', gap: '20px', alignItems: 'flex-start', flexWrap: 'wrap',
+          background: '#ffffff', border: '1px solid ' + (s.dragFrom === i ? '#0c0f14' : '#dbdbdb'),
+          borderRadius: '8px', padding: '18px 20px'
+        },
+        moveStyle: {
+          background: '#ffffff', border: '1px solid #dbdbdb', borderRadius: '4px',
+          width: '26px', height: '22px', cursor: 'pointer', font: '400 12px/1 var(--font)', color: '#0c0f14', padding: 0
+        },
+        onNote: ev => { const v = ev.target.value; this.touch(deck.id, d => Object.assign({}, d, { entries: d.entries.map((x, j) => j === i ? Object.assign({}, x, { note: v }) : x) })); },
+        up: () => this.reorder(deck.id, i, i - 1),
+        down: () => this.reorder(deck.id, i, i + 1),
+        remove: () => this.touch(deck.id, d => Object.assign({}, d, { entries: d.entries.filter((x, j) => j !== i) })),
+        dragStart: () => this.setState({ dragFrom: i }),
+        dragOver: ev => ev.preventDefault(),
+        drop: ev => { ev.preventDefault(); if (s.dragFrom !== null && s.dragFrom !== i) this.reorder(deck.id, s.dragFrom, i); this.setState({ dragFrom: null }); },
+        dragEnd: () => this.setState({ dragFrom: null })
+      };
+    });
+
+    const printEntries = !deck ? [] : deck.entries.map((e, i) => {
+      const c = this.card(e.cardId) || { name: 'Missing card', challenge: '', body: '' };
+      return {
+        pos: i + 1, name: c.name, challenge: c.challenge, body: c.body,
+        structure: c.structure || [], hasStructure: !!(c.structure && c.structure.length),
+        link: c.link || null, hasLink: !!c.link,
+        note: e.note, hasNote: !!(e.note && e.note.trim()),
+        noteStyle: { background: '#eff0e5', border: '1px solid #dbdbdb', borderRadius: '4px', padding: '10px 12px', font: '400 14px/1.5 var(--font)', margin: 0 }
+      };
+    });
+
+    const authed = !!s.session;
+    return {
+      chrome: view !== 'print',
+      isAuthView: view === 'auth',
+      isFloor: view === 'floor', isTable: view === 'table', isCatalog: view === 'catalog',
+      isDecks: view === 'decks', isDeck: view === 'deck', isPrint: view === 'print',
+      decksNeedsLogin: !authed, decksLoggedIn: authed,
+
+      authEmail: s.authEmail, authPassword: s.authPassword, authError: s.authError, authBusy: s.authBusy,
+      onAuthEmail: ev => this.setState({ authEmail: ev.target.value, authError: '' }),
+      onAuthPassword: ev => this.setState({ authPassword: ev.target.value, authError: '' }),
+      onAuthKey: ev => { if (ev.key === 'Enter') this.submitAuth(); },
+      submitAuth: () => this.submitAuth(),
+      toggleAuthView: () => this.setState(st => ({ authView: st.authView === 'login' ? 'signup' : 'login', authError: '' })),
+      authSubmitLabel: s.authView === 'signup' ? 'Create account' : 'Log in',
+      authToggleLabel: s.authView === 'signup' ? 'Already have an account? Log in' : 'New here? Create an account',
+      authNavLabel: authed ? 'Log out' : 'Log in',
+      authNavAction: authed ? (() => Component.sb().auth.signOut()) : (() => this.goAuth()),
+      goAuth: () => this.goAuth(),
+      floorSaveNote: authed ? 'Decks are saved to your account.' : 'Log in to save decks and access them from anywhere.',
+
+      goFloor: () => this.setState({ view: 'floor' }),
+      goCatalog: () => this.setState({ view: 'catalog' }),
+      goDecks: () => this.setState({ view: 'decks', confirmDel: null }),
+      goPrint: () => this.setState({ view: 'print' }),
+      doPrint: () => window.print(),
+      openActive: () => this.setState({ view: 'deck', openId: s.activeId }),
+      clearHover: () => this.setState({ hover: null }),
+      isWide: s.wide, isNarrow: !s.wide,
+      fill: Component.TABLES.reduce((acc, x) => { acc[x.id] = s.hover === x.id ? '#feffa0' : Component.HUES[x.id]; return acc; }, {}),
+      open: Component.TABLES.reduce((acc, x) => { acc[x.id] = () => this.setState({ view: 'table', tableId: x.id, dealt: false, faceUp: [] }); return acc; }, {}),
+      hov: Component.TABLES.reduce((acc, x) => { acc[x.id] = () => this.setState({ hover: x.id }); return acc; }, {}),
+
+      navFloor: this.btn(view === 'floor'), navCards: this.btn(view === 'catalog'),
+      navDecks: this.btn(view === 'decks' || view === 'deck'),
+
+      hasActive: !!active, activeName: active ? active.name : '',
+      activeCount: active ? active.entries.length + (active.entries.length === 1 ? ' card' : ' cards') : '',
+      naming: s.naming, nameDraft: s.nameDraft,
+      onNameDraft: ev => this.setState({ nameDraft: ev.target.value }),
+      onNameKey: ev => { if (ev.key === 'Enter') { ev.target.blur(); } },
+      commitName: () => {
+        const v = s.nameDraft.trim();
+        if (v && s.activeId) this.touch(s.activeId, d => Object.assign({}, d, { name: v }));
+        this.setState({ naming: false, nameDraft: '' });
+      },
+
+      floorTables: Component.TABLES.map((x, xi) => {
+        const on = s.hover === x.id;
+        return {
+          id: x.id, num: xi + 1, challenge: x.challenge, line: x.line, hue: Component.HUES[x.id],
+          count: x.cards.length + (x.cards.length === 1 ? ' card' : ' cards'),
+          open: () => this.setState({ view: 'table', tableId: x.id, dealt: false, faceUp: [] }),
+          hover: () => this.setState({ hover: x.id }),
+          tile: {
+            display: 'flex', flexDirection: 'column', alignItems: 'stretch', textAlign: 'left',
+            background: '#ffffff', border: '1px solid ' + (on ? '#b8b8b1' : '#dbdbdb'),
+            borderRadius: '8px', padding: 0, cursor: 'pointer', overflow: 'hidden',
+            transition: 'border-color 100ms var(--ease-fast)'
+          },
+          glyphBox: {
+            background: '#eff0e5', borderBottom: '1px solid #dbdbdb',
+            padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+          },
+          lineStyle: {
+            font: '400 15px/1.45 var(--font)', color: '#0c0f14', marginTop: '3px',
+            background: on ? '#feffa0' : 'transparent', display: 'inline',
+            boxShadow: on ? '0 0 0 3px #feffa0' : 'none',
+            transition: 'background-color 100ms var(--ease-fast)'
+          },
+          keyStyle: {
+            display: 'flex', gap: '14px', alignItems: 'flex-start', textAlign: 'left',
+            background: 'none', border: '0', borderTop: '1px solid #dbdbdb',
+            padding: '14px 4px', cursor: 'pointer', color: '#0c0f14', width: '100%'
+          },
+          swatch: {
+            width: '16px', height: '22px', borderRadius: '2px', flex: 'none', marginTop: '1px',
+            background: Component.HUES[x.id], border: '1px solid #0c0f14'
+          },
+          isUsecase: x.id === 'usecase', isProblems: x.id === 'problems', isSpec: x.id === 'spec',
+          isIterative: x.id === 'iterative', isSuccess: x.id === 'success',
+          isGordian: x.id === 'gordian', isPriority: x.id === 'priority'
+        };
+      }),
+
+      tvChallenge: t ? t.challenge : '',
+      tvNum: t ? 'Challenge ' + (Component.TABLES.indexOf(t) + 1) + ' of 7' : '',
+      tvLine: t ? t.line : '',
+      tvWhats: t ? t.whats : '', tvWhy: t ? t.why : '',
+      tvCount: t ? (t.cards.length === 1 ? 'One move to pick up here.' : t.cards.length + ' moves to pick up here.') : '',
+      tvQuestions: t ? t.questions.map((text, i) => ({
+        text,
+        rowStyle: { display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '12px 0', borderTop: i === 0 ? '0' : '1px solid #dbdbdb' },
+        btnStyle: {
+          background: s.copied === t.id + i ? '#eff0e5' : '#ffffff', border: '1px solid #dbdbdb',
+          borderRadius: '4px', padding: '6px 10px', font: '400 12px/1.2 var(--font)',
+          cursor: 'pointer', color: '#0c0f14', flex: 'none'
+        },
+        btnLabel: s.copied === t.id + i ? 'Copied' : 'Copy',
+        copy: () => {
+          try { navigator.clipboard.writeText(text); } catch (e) { /* ignore */ }
+          this.setState({ copied: t.id + i });
+          window.setTimeout(() => this.setState(st => st.copied === t.id + i ? { copied: null } : {}), 1600);
+        }
+      })) : [],
+      dealt: s.dealt, notDealt: !s.dealt,
+      deal: () => this.setState({ dealt: true }),
+      dealHint: 'Names are on the card backs. Turn over the ones you want to read; several can stay face up.',
+      dealCards: t && s.dealt ? t.cards.map((c, i) => this.cardVM(Object.assign({}, c, {
+        tableId: t.id, challenge: t.challenge, hue: Component.HUES[t.id]
+      }), i)) : [],
+
+      catalogCount: all.length + ' moves across seven challenges.',
+      query: s.query, onQuery: ev => this.setState({ query: ev.target.value }),
+      chips,
+      catalogGrid: s.mode === 'grid' && filtered.length > 0,
+      catalogList: s.mode === 'list' && filtered.length > 0,
+      catalogEmpty: filtered.length === 0,
+      setGrid: () => this.setState({ mode: 'grid' }), setList: () => this.setState({ mode: 'list' }),
+      gridBtn: this.btn(s.mode === 'grid'), listBtn: this.btn(s.mode === 'list'),
+      catalogCards: filtered.map((c, i) => this.cardVM(c, i)),
+
+      decksEmpty: s.decks.length === 0,
+      decksSummary: s.decks.length + (s.decks.length === 1 ? ' deck saved.' : ' decks saved.'),
+      newDeck: () => {
+        const id = 'd-' + Date.now();
+        const d = { id, name: 'Untitled deck', createdAt: Date.now(), updatedAt: Date.now(), entries: [] };
+        this.save(s.decks.concat([d]), id);
+        this.setState({ decks: s.decks.concat([d]), activeId: id, openId: id, view: 'catalog', naming: true, nameDraft: '' });
+      },
+      deckRows: s.decks.map((d, i) => ({
+        id: d.id, name: d.name,
+        meta: d.entries.length + (d.entries.length === 1 ? ' card, edited ' : ' cards, edited ') + this.fmtDate(d.updatedAt),
+        rowStyle: {
+          display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap',
+          padding: '18px 20px', borderTop: i === 0 ? '0' : '1px solid #dbdbdb',
+          background: d.id === s.activeId ? '#eff0e5' : '#ffffff'
+        },
+        hues: d.entries.map(e => {
+          const c = this.card(e.cardId);
+          return {
+            label: c ? c.challenge : '',
+            style: { width: '10px', height: '28px', borderRadius: '2px', border: '1px solid #0c0f14', background: c ? c.hue : '#ffffff' }
+          };
+        }),
+        open: () => this.setState({ view: 'deck', openId: d.id, activeId: d.id, confirmDel: null }),
+        dup: () => {
+          const copy = Object.assign({}, d, { id: 'd-' + Date.now(), name: d.name + ' (copy)', updatedAt: Date.now(), entries: d.entries.map(e => Object.assign({}, e)) });
+          this.commit(s.decks.concat([copy]));
+        },
+        delStyle: {
+          background: s.confirmDel === d.id ? '#0c0f14' : '#ffffff', color: s.confirmDel === d.id ? '#ffffff' : '#0c0f14',
+          border: '1px solid ' + (s.confirmDel === d.id ? '#0c0f14' : '#dbdbdb'), borderRadius: '4px',
+          padding: '8px 12px', font: '400 13px/1.2 var(--font)', cursor: 'pointer'
+        },
+        delLabel: s.confirmDel === d.id ? 'Delete for good' : 'Delete',
+        del: () => {
+          if (s.confirmDel !== d.id) { this.setState({ confirmDel: d.id }); return; }
+          const decks = s.decks.filter(x => x.id !== d.id);
+          const activeId = s.activeId === d.id ? (decks[0] ? decks[0].id : null) : s.activeId;
+          this.save(decks, activeId);
+          this.setState({ decks, activeId, openId: activeId, confirmDel: null });
+        }
+      })),
+
+      deckName: deck ? deck.name : '',
+      onDeckName: ev => { const v = ev.target.value; if (deck) this.touch(deck.id, d => Object.assign({}, d, { name: v })); },
+      deckComposition: this.composition(deck),
+      deckEmpty: !!deck && deck.entries.length === 0,
+      deckEntries, printEntries,
+      exportLabel: s.exported ? 'File saved' : 'Export',
+      exportDeck: () => {
+        if (!deck) return;
+        try {
+          const blob = new Blob([JSON.stringify(deck, null, 2)], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = deck.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.json';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        } catch (e) { /* ignore */ }
+        this.setState({ exported: true });
+        window.setTimeout(() => this.setState({ exported: false }), 2000);
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

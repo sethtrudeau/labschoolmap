@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/v3-playlab-design-system-9e87e75e-f4fd-428c-b32a-cb4e1b91879a/styles.css">
+<script src="_ds/v3-playlab-design-system-9e87e75e-f4fd-428c-b32a-cb4e1b91879a/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:var(--page-cream);font-family:var(--font);color:var(--text1)}
+a{color:var(--link)}a:hover{color:var(--ink)}
+.dv-turn{padding:48px 48px 40px;border-bottom:1px solid var(--hairline)}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:500 11px/1 var(--font);padding:4px 8px;background:var(--ink);color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:500 14px/1.2 var(--font)}
+.dv-opts{display:flex;flex-direction:column;gap:40px}
+.dv-opt{scroll-margin-top:16px;display:flex;flex-direction:column;gap:12px}
+.dv-oid{font:500 11px/1 var(--font);padding:4px 8px;background:var(--surface1);color:var(--ink);border-radius:4px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:10px;font:400 13px/1.4 var(--font);color:var(--text2)}
+.dv-card{background:var(--page-cream);border:1px solid var(--hairline);border-radius:8px;padding:28px;display:flex;flex-direction:column;gap:22px}
+.dv-opt:target .dv-oid{background:var(--highlight-yellow)}
+.dv-row{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.dv-sub{font:400 12px/1.5 var(--font);color:var(--text3);margin:0}
+.dv-next{margin:26px 0 0;font:400 12px/1.6 var(--font);color:var(--text3)}
+</style>
+</helmet>
+<section class="dv-turn" id="t2">
+  <div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Plate, in colour</span></div>
+  <p class="dv-sub" style="max-width:660px;margin:0 0 26px">The plate composition, kept. One hue per challenge, taken from the sixteen-hue palette, with the same ink linework over it and the move name knocked out on a white plate. Colour now carries the family identity, so the pattern only has to confirm it — which is what makes the cards survive being small. No tiny rows: the smallest a card gets anywhere in the product is the 150px deck row below.</p>
+  <div class="dv-opts">
+
+    <div class="dv-opt" id="2a">
+      <div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Deal size, 220px — the seven families</div>
+      <div class="dv-card">
+        <div class="dv-row">
+          <sc-for list="{{ tables }}" as="t" hint-placeholder-count="7">
+            <dc-import name="CardBack" table-id="{{ t.id }}" move="{{ t.sample }}" challenge="{{ t.challenge }}" w="{{ 220 }}" hint-size="220px,308px"></dc-import>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="2b">
+      <div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Mixed deck at 150px — eight cards from six tables</div>
+      <div class="dv-card">
+        <div class="dv-row" style="gap:14px">
+          <sc-for list="{{ mixed }}" as="m" hint-placeholder-count="8">
+            <dc-import name="CardBack" table-id="{{ m.id }}" move="{{ m.sample }}" challenge="{{ m.challenge }}" w="{{ 150 }}" hint-size="150px,210px"></dc-import>
+          </sc-for>
+        </div>
+        <p class="dv-sub">This is the floor of the size range. Below it the deck list uses a hue strip, not cards.</p>
+      </div>
+    </div>
+
+  </div>
+  <p class="dv-next">Try next: “warmer palette” · “swap the brown on problems over solutions” · “build the prototype on <a class="dv-oid" href="#2a">2a</a>”</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const tables = [
+      { id: 'usecase', challenge: 'Use case definition', sample: 'Future cones' },
+      { id: 'problems', challenge: 'Problems over solutions', sample: 'Solution interrogation' },
+      { id: 'spec', challenge: 'Problem specification', sample: 'Premortem' },
+      { id: 'iterative', challenge: 'Iterative process', sample: 'Monkey & pedestal' },
+      { id: 'success', challenge: 'Success definition', sample: 'Contrasting cases' },
+      { id: 'gordian', challenge: 'Gordian knots', sample: 'Find the leverage point' },
+      { id: 'priority', challenge: 'Prioritization', sample: 'Product development staging' }
+    ];
+    const mixed = [
+      { id: 'problems', challenge: 'Problems over solutions', sample: 'Storyboarding' },
+      { id: 'spec', challenge: 'Problem specification', sample: 'Premortem' },
+      { id: 'spec', challenge: 'Problem specification', sample: 'Solid / Jelly / Vapor' },
+      { id: 'iterative', challenge: 'Iterative process', sample: 'Monkey & pedestal' },
+      { id: 'iterative', challenge: 'Iterative process', sample: 'The wood block prototype' },
+      { id: 'gordian', challenge: 'Gordian knots', sample: 'Map the system' },
+      { id: 'success', challenge: 'Success definition', sample: 'Red / Yellow / Green bands' },
+      { id: 'priority', challenge: 'Prioritization', sample: 'Product development staging' }
+    ];
+    return { tables, mixed };
+  }
+}
+
+</script>
+</body>
+</html>

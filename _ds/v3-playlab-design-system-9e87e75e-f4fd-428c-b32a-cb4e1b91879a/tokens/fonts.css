@@ -1,0 +1,19 @@
+/* Neue Haas Grotesk Text — licensed through Adobe Fonts (Typekit).
+   VERIFIED: the kit below serves the family to this project (checked against a rendered
+   specimen — 400 and 500 both resolve to Neue Haas Grotesk Text, not the fallback).
+   No self-hosted binary is shipped and none can be: the Adobe Fonts licence does not permit
+   redistribution. Do NOT substitute another family — a substitute silently changes every
+   measurement in the Perfect Fourth scale.
+   The kit checks the referrer; on an unauthorised origin the stack falls back to
+   Helvetica Neue / Helvetica / Arial, which is the fallback the source itself authored. */
+@import url("https://use.typekit.net/hku1ywo.css");
+
+:root {
+  --font: "neue-haas-grotesk-text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* Deprecated aliases — one family now. Kept so existing surfaces resolve; migrate to --font. */
+  --font-body: var(--font);
+  --font-mono: var(--font);
+  --font-editorial: var(--font);
+  --weight-regular: 400;
+  --weight-medium: 500;
+}

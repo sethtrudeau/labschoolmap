@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/v3-playlab-design-system-9e87e75e-f4fd-428c-b32a-cb4e1b91879a/styles.css">
+<script src="_ds/v3-playlab-design-system-9e87e75e-f4fd-428c-b32a-cb4e1b91879a/_ds_bundle.js"></script>
+</helmet>
+<div style="{{ rootStyle }}">
+  <div style="position:absolute;inset:0;line-height:0;overflow:hidden">
+    <sc-if value="{{ isUsecase }}" hint-placeholder-val="{{ false }}">
+      <svg viewBox="0 0 200 280" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#0c0f14" stroke-width="1">
+          <circle cx="0" cy="280" r="46"></circle>
+          <circle cx="0" cy="280" r="80"></circle>
+          <circle cx="0" cy="280" r="114"></circle>
+          <circle cx="0" cy="280" r="148"></circle>
+          <circle cx="0" cy="280" r="182"></circle>
+          <circle cx="0" cy="280" r="216"></circle>
+          <circle cx="0" cy="280" r="250"></circle>
+          <circle cx="0" cy="280" r="284"></circle>
+        </g>
+      </svg>
+    </sc-if>
+    <sc-if value="{{ isProblems }}" hint-placeholder-val="{{ false }}">
+      <svg viewBox="0 0 200 280" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#0c0f14" stroke-width="1">
+          <rect x="14" y="16" width="150" height="196"></rect>
+          <rect x="32" y="40" width="150" height="196"></rect>
+          <rect x="50" y="64" width="150" height="196"></rect>
+        </g>
+      </svg>
+    </sc-if>
+    <sc-if value="{{ isSpec }}" hint-placeholder-val="{{ false }}">
+      <svg viewBox="0 0 200 280" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="#0c0f14">
+          <circle cx="24" cy="30" r="3.6"></circle><circle cx="62" cy="22" r="3.6"></circle><circle cx="104" cy="36" r="3.6"></circle>
+          <circle cx="150" cy="26" r="3.6"></circle><circle cx="178" cy="52" r="3.6"></circle><circle cx="34" cy="66" r="3.6"></circle>
+          <circle cx="76" cy="58" r="3.6"></circle><circle cx="118" cy="72" r="3.6"></circle><circle cx="158" cy="86" r="3.6"></circle>
+          <circle cx="20" cy="104" r="3.6"></circle><circle cx="56" cy="96" r="3.6"></circle><circle cx="90" cy="108" r="3.6"></circle>
+          <circle cx="124" cy="100" r="3.6"></circle><circle cx="162" cy="120" r="3.6"></circle><circle cx="38" cy="134" r="3.6"></circle>
+          <circle cx="70" cy="128" r="3.6"></circle><circle cx="98" cy="142" r="3.6"></circle><circle cx="132" cy="136" r="3.6"></circle>
+          <circle cx="166" cy="154" r="3.6"></circle><circle cx="26" cy="166" r="3.6"></circle><circle cx="58" cy="172" r="3.6"></circle>
+          <circle cx="88" cy="178" r="3.6"></circle><circle cx="120" cy="170" r="3.6"></circle><circle cx="152" cy="188" r="3.6"></circle>
+          <circle cx="44" cy="204" r="3.6"></circle><circle cx="78" cy="212" r="3.6"></circle><circle cx="112" cy="204" r="3.6"></circle>
+          <circle cx="146" cy="220" r="3.6"></circle><circle cx="60" cy="244" r="3.6"></circle><circle cx="100" cy="252" r="3.6"></circle>
+          <circle cx="138" cy="248" r="3.6"></circle><circle cx="176" cy="238" r="3.6"></circle>
+        </g>
+      </svg>
+    </sc-if>
+    <sc-if value="{{ isIterative }}" hint-placeholder-val="{{ false }}">
+      <svg viewBox="0 0 200 280" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#0c0f14" stroke-width="1">
+          <rect x="2" y="16" width="62" height="104"></rect>
+          <rect x="36" y="48" width="62" height="104"></rect>
+          <rect x="70" y="80" width="62" height="104"></rect>
+          <rect x="104" y="112" width="62" height="104"></rect>
+          <rect x="138" y="144" width="62" height="104"></rect>
+        </g>
+      </svg>
+    </sc-if>
+    <sc-if value="{{ isSuccess }}" hint-placeholder-val="{{ false }}">
+      <svg viewBox="0 0 200 280" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true">
+        <g stroke="#0c0f14">
+          <line x1="0" y1="24" x2="200" y2="24" stroke-width="1"></line>
+          <line x1="0" y1="52" x2="200" y2="52" stroke-width="1.5"></line>
+          <line x1="0" y1="82" x2="200" y2="82" stroke-width="2.5"></line>
+          <line x1="0" y1="114" x2="200" y2="114" stroke-width="4"></line>
+          <line x1="0" y1="150" x2="200" y2="150" stroke-width="6"></line>
+          <line x1="0" y1="192" x2="200" y2="192" stroke-width="8.5"></line>
+          <line x1="0" y1="240" x2="200" y2="240" stroke-width="12"></line>
+        </g>
+      </svg>
+    </sc-if>
+    <sc-if value="{{ isGordian }}" hint-placeholder-val="{{ false }}">
+      <svg viewBox="0 0 200 280" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#0c0f14" stroke-width="1">
+          <rect x="14" y="10" width="18" height="260"></rect>
+          <rect x="44" y="10" width="18" height="260"></rect>
+          <rect x="74" y="10" width="18" height="260"></rect>
+          <rect x="104" y="10" width="18" height="260"></rect>
+          <rect x="134" y="10" width="18" height="260"></rect>
+          <rect x="164" y="10" width="18" height="260"></rect>
+        </g>
+        <g transform="rotate(-7 100 128)">
+          <rect x="-16" y="120" width="232" height="16" fill="{{ hue }}"></rect>
+          <line x1="-16" y1="120" x2="216" y2="120" stroke="#0c0f14" stroke-width="1"></line>
+          <line x1="-16" y1="136" x2="216" y2="136" stroke="#0c0f14" stroke-width="1"></line>
+        </g>
+      </svg>
+    </sc-if>
+    <sc-if value="{{ isPriority }}" hint-placeholder-val="{{ false }}">
+      <svg viewBox="0 0 200 280" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#0c0f14" stroke-width="1">
+          <ellipse cx="100" cy="252" rx="78" ry="21"></ellipse>
+          <ellipse cx="100" cy="220" rx="70" ry="19"></ellipse>
+          <ellipse cx="100" cy="190" rx="61" ry="17"></ellipse>
+          <ellipse cx="100" cy="162" rx="51" ry="14"></ellipse>
+          <ellipse cx="100" cy="136" rx="41" ry="11"></ellipse>
+          <ellipse cx="100" cy="112" rx="30" ry="9"></ellipse>
+          <ellipse cx="100" cy="92" rx="20" ry="6"></ellipse>
+        </g>
+      </svg>
+    </sc-if>
+  </div>
+  <div style="{{ plateStyle }}">
+    <div style="{{ nameStyle }}">{{ name }}</div>
+    <div style="{{ challengeStyle }}">{{ challenge }}</div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:260,&quot;height&quot;:340},&quot;tableId&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;usecase&quot;,&quot;problems&quot;,&quot;spec&quot;,&quot;iterative&quot;,&quot;success&quot;,&quot;gordian&quot;,&quot;priority&quot;],&quot;default&quot;:&quot;spec&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;move&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Premortem&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;challenge&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Problem specification&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;w&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:220,&quot;min&quot;:140,&quot;max&quot;:360,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  static HUES = {
+    usecase: '#b0d4ff', problems: '#bd9984', spec: '#a2dff0', iterative: '#c8ff3d',
+    success: '#c3c96e', gordian: '#ffb6f1', priority: '#c1bab2'
+  };
+
+  renderVals() {
+    const p = this.props;
+    const id = p.tableId || 'usecase';
+    const w = Math.max(140, Number(p.w || 220));
+    const name = p.move || '';
+    const challenge = p.challenge || '';
+    const hue = Component.HUES[id] || '#b0d4ff';
+    const s = w / 220;
+    const pad = Math.round(16 * s);
+    const nameSize = Math.round(19 * s * 10) / 10;
+
+    return {
+      name, challenge, hue,
+      rootStyle: {
+        position: 'relative', width: w + 'px', aspectRatio: '5 / 7',
+        border: '1px solid #0c0f14', borderRadius: '4px', background: hue,
+        overflow: 'hidden', flex: 'none', display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', fontFamily: 'var(--font)', color: '#0c0f14', textAlign: 'left'
+      },
+      plateStyle: {
+        position: 'relative', margin: '0 ' + pad + 'px', background: '#ffffff',
+        border: '1px solid #0c0f14', borderRadius: '2px', padding: Math.round(14 * s) + 'px ' + Math.round(13 * s) + 'px'
+      },
+      nameStyle: {
+        font: '500 ' + nameSize + 'px/1.14 var(--font)', letterSpacing: '-0.015em', textWrap: 'balance'
+      },
+      challengeStyle: {
+        marginTop: Math.round(9 * s) + 'px', paddingTop: Math.round(8 * s) + 'px',
+        borderTop: '1px solid #dbdbdb',
+        font: '400 ' + Math.round(11.5 * s * 10) / 10 + 'px/1.2 var(--font)', color: '#535350'
+      },
+      isUsecase: id === 'usecase', isProblems: id === 'problems', isSpec: id === 'spec',
+      isIterative: id === 'iterative', isSuccess: id === 'success',
+      isGordian: id === 'gordian', isPriority: id === 'priority'
+    };
+  }
+}
+
+</script>
+</body>
+</html>
